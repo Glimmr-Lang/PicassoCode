@@ -140,6 +140,26 @@ public interface PiccodeScriptListener extends ParseTreeListener {
 	 */
 	void exitExpr(PiccodeScriptParser.ExprContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link PiccodeScriptParser#unary}.
+	 * @param ctx the parse tree
+	 */
+	void enterUnary(PiccodeScriptParser.UnaryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PiccodeScriptParser#unary}.
+	 * @param ctx the parse tree
+	 */
+	void exitUnary(PiccodeScriptParser.UnaryContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PiccodeScriptParser#if_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterIf_expr(PiccodeScriptParser.If_exprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PiccodeScriptParser#if_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitIf_expr(PiccodeScriptParser.If_exprContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link PiccodeScriptParser#when_expr}.
 	 * @param ctx the parse tree
 	 */
