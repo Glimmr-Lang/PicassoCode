@@ -220,10 +220,71 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 			return visitBinOp("/", expr);
 		}
 
+		if (expr.GT() != null) {
+			return visitBinOp(">", expr);
+		}
+		
+		if (expr.GE() != null) {
+			return visitBinOp(">=", expr);
+		}
+		
+		if (expr.LT() != null) {
+			return visitBinOp("<", expr);
+		}
+		
+		if (expr.LE() != null) {
+			return visitBinOp("<=", expr);
+		}
+
+		if (expr.EQ()!= null) {
+			return visitBinOp("==", expr);
+		}
+
+		if (expr.NE()!= null) {
+			return visitBinOp("!=", expr);
+		}
+
+		if (expr.AND()!= null) {
+			return visitBinOp("&&", expr);
+		}
+
+		if (expr.OR()!= null) {
+			return visitBinOp("||", expr);
+		}
+
+
+		if (expr.SHL()!= null) {
+			return visitBinOp("<<", expr);
+		}
+
+		if (expr.SHR()!= null) {
+			return visitBinOp(">>", expr);
+		}
+
+		if (expr.BAND()!= null) {
+			return visitBinOp("&", expr);
+		}
+
+		if (expr.BOR()!= null) {
+			return visitBinOp("|", expr);
+		}
+
+		if (expr.unary() != null) {
+			return visitUnaryExpr(expr.unary());
+		}
+
 		if (expr.DOT() != null) {
 			return visitDotOperation(expr);
 		}
+		
+		if (expr.if_expr() != null) {
+			return visitIf_expr(expr.if_expr());
+		}
 
+		if (expr.PIPE() != null) {
+			return visitPipeOp(expr);
+		}
+		
 		if (expr.array() != null) {
 			return visitArray(expr.array());
 		}
@@ -251,6 +312,27 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		return null;
 	}
 
+	@Override
+	public Ast visitIf_expr(If_exprContext ctx) {
+		var cond = visitExpr(ctx.expr(0));
+		var t = visitExpr(ctx.expr(1));
+		var f = visitExpr(ctx.expr(2));
+
+		return new IfExpression(cond, t, f);
+	}
+
+
+	private Ast visitUnaryExpr(UnaryContext ctx) {
+		if (ctx.EXCLAIM() != null) {
+			return new UnaryAst("!", visitExpr(ctx.expr()));
+		}
+
+		if (ctx.BAND()!= null) {
+			return new UnaryAst("&", visitExpr(ctx.expr()));
+		}
+
+		return null;
+	}
 	public Ast visitCall(ExprContext expr, Call_expr_listContext exprList) {
 		var value = visitExpr(expr);
 		if (exprList == null) {
@@ -353,5 +435,11 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 	private Ast visitId(TerminalNode ID) {
 		String id = ID.getText();
 		return new IdentifierAst(id);
+	}
+
+	private Ast visitPipeOp(ExprContext expr) {
+		var lhs = visitExpr(expr.expr().getFirst());
+		var rhs = visitExpr(expr.expr().getLast());
+		return new PipeAst(lhs, rhs);
 	}
 }

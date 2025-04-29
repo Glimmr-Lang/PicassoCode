@@ -22,22 +22,26 @@ import pkg:image
 
 function fact(x=0) = 
 	when x {
-		is 0,1 -> 1
+		is 0 -> 1
 		else -> x * fact(x - 1)
 	} 
 
 let image = Resource.loadPaintResource(src="./images/image.png")
 
-Render.drawImage(
-  paint = image.id,
-	size = Image.size(40, 50)
-)
+image 
+  |> Render.drawImage(
+			size = Image.size(40, 50)
+		)
 
 function addVec(l={x: 0, y:0}, r={x: 0, y: 0}) = l + r
 
 module Render {
 	function drawImage(paint = 1, size=[20, 20]) = 0
 }
+
+module Image {
+ 	function size(x=1, y=1) = if y > x { [x, y] } else { [y, x] }
+ }
           """;
 			var lexer = new PiccodeScriptLexer(CharStreams.fromString(code));
 			var parser = new PiccodeScriptParser(new CommonTokenStream(lexer));
