@@ -1,5 +1,6 @@
 package org.piccode.piccode;
 
+import org.editor.EditorWindow;
 import org.piccode.backend.Compiler;
 
 
@@ -10,6 +11,7 @@ import org.piccode.backend.Compiler;
 public class Piccode {
 
     public static void main(String[] args) {
-			Compiler.compile();
+			//Compiler.compile();
+			new EditorWindow();
 		}
 }
