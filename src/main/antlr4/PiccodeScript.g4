@@ -56,7 +56,26 @@ expr
 	| expr ADD expr      
 	| expr SUB expr
 	| expr DOT expr
-	| expr '(' call_expr_list? ')'
+
+	| expr GT expr
+	| expr GE expr
+	| expr LT expr
+	| expr LE expr
+	
+	| expr EQ expr
+	| expr NE expr
+	
+	| expr AND expr
+	| expr OR expr
+
+	| expr SHL expr
+	| expr SHR expr
+	| expr BAND expr
+	| expr BOR expr
+	| expr PIPE expr
+	| unary
+	| if_expr
+	| expr LPAREN call_expr_list? RPAREN
 	| array
 	| tuple
 	| object
@@ -67,28 +86,35 @@ expr
 	| STRING                           
 	;
 
+unary: 
+	EXCLAIM expr
+	| BAND expr;
+
+if_expr:
+	IF expr LBRACE expr RBRACE ELSE LBRACE expr RBRACE;
+
 when_expr: 
- WHEN expr '{' when_cases else_case? '}'; 
+ WHEN expr LBRACE when_cases else_case? RBRACE;
 	
 when_cases: when_case*;
 
-when_case: IS expr_list '->' expr;
+when_case: IS expr_list ARROW expr;
 
-else_case: ELSE '->' expr;
+else_case: ELSE ARROW expr;
 
 var_decl: LET ID ASSIGN expr;
-tuple: '(' expr_list ')';
-array: '[' expr_list? ']'; 
-object: '{' key_val_pairs '}';
+tuple: LPAREN expr_list RPAREN;
+array: LBRACKET expr_list? RBRACKET;
+object: LBRACE key_val_pairs RBRACE;
 
-expr_list: expr (',' expr)*;
-call_expr_list: call_expr (',' call_expr)*;
+expr_list: expr (COMMA expr)*;
+call_expr_list: call_expr (COMMA call_expr)*;
 
 call_expr: ID (ASSIGN expr)? 
 	| expr;
 
-key_val_pair: ID ':' expr;
-key_val_pairs: key_val_pair (',' key_val_pair)*;
+key_val_pair: ID COLON expr;
+key_val_pairs: key_val_pair (COMMA key_val_pair)*;
 
 
 	// lexer rules
@@ -96,6 +122,35 @@ ADD: '+';
 SUB: '-';
 MUL: '*';
 DIV: '/';
+
+GT: '>';
+GE: '>=';
+LT: '<';
+LE: '<=';
+EQ: '==';
+NE: '!=';
+
+AND: '&&';
+OR: '||';
+
+SHL: '>>';
+SHR: '<<';
+BAND: '&';
+BOR: '|';
+EXCLAIM : '!';
+PIPE: '|>';
+
+LBRACE: '{';
+RBRACE: '}';
+LPAREN: '(';
+RPAREN: ')';
+LBRACKET: '[';
+RBRACKET: ']';
+COLON: ':';
+COMMA: ',';
+SEMI: ';';
+ARROW: '->';
+
 
 ASSIGN: '=';
 
@@ -122,5 +177,5 @@ LINE_COMMENT: '//' ~[\r\n]* -> skip;
 BLOCK_COMMENT: '/*' .*? '*/' -> skip;
 
 
-ID: [a-zA-Z_][a-zA-Z_0-9]* ;
-WS: [ \t\r\n]+ -> skip;
+ID: [a-zA-Z_][a-zA-Z0-9_]* ;
+WS: [ \t\r\n]+ ; 
