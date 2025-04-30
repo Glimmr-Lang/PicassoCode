@@ -178,4 +178,4 @@ BLOCK_COMMENT: '/*' .*? '*/' -> skip;
 
 
 ID: [a-zA-Z_][a-zA-Z0-9_]* ;
-WS: [ \t\r\n]+ ; 
+WS: [ \t\r\n]+ -> channel(HIDDEN); 

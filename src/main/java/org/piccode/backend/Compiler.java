@@ -2,19 +2,20 @@ package org.piccode.backend;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.editor.errors.IDEErrorListener;
 import org.piccode.antlr4.PiccodeScriptLexer;
 import org.piccode.antlr4.PiccodeScriptParser;
 import org.piccode.ast.PiccodeVisitor;
-import org.piccode.piccode.ErrorListerner;
 
 /**
  *
  * @author hexaredecimal
  */
 public class Compiler {
+
 	public static void compile() {
-			var code = 
-					"""
+		var code
+						= """
 import pkg:math
 import pkg:resource
 import pkg:render
@@ -43,14 +44,18 @@ module Image {
  	function size(x=1, y=1) = if y > x { [x, y] } else { [y, x] }
  }
           """;
-			var lexer = new PiccodeScriptLexer(CharStreams.fromString(code));
-			var parser = new PiccodeScriptParser(new CommonTokenStream(lexer));
-			parser.removeErrorListeners();
-			parser.addErrorListener(new ErrorListerner());
+		var lexer = new PiccodeScriptLexer(CharStreams.fromString(code));
+		var parser = new PiccodeScriptParser(new CommonTokenStream(lexer));
+		lexer.removeErrorListeners();
+		parser.removeErrorListeners();
 
-			var visitor = new PiccodeVisitor();
-    
-			var result = visitor.visit(parser.stmts());
-			System.out.println("" + result);
+		IDEErrorListener errorListener = new IDEErrorListener();
+		lexer.addErrorListener(errorListener);
+		parser.addErrorListener(errorListener);
+
+		var visitor = new PiccodeVisitor();
+
+		var result = visitor.visit(parser.stmts());
+		System.out.println("" + result);
 	}
 }
