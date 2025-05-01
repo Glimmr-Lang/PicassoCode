@@ -1,12 +1,15 @@
 package org.piccode.ast;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.piccode.rt.PiccodeTuple;
+import org.piccode.rt.PiccodeValue;
 
 /**
  *
  * @author hexaredecimal
  */
-public class TupleAst extends Ast {
+public class TupleAst implements Ast {
 	public List<Ast> nodes; 
 
 	public TupleAst(List<Ast> nodes) {
@@ -27,6 +30,15 @@ public class TupleAst extends Ast {
 		}
 		sb.append(")");
 		return sb.toString();
+	}
+
+	@Override
+	public PiccodeValue execute() {
+		var list = new ArrayList<PiccodeValue>();
+		for (var node: nodes) {
+			list.add(node.execute());
+		}
+		return new PiccodeTuple(list);
 	}
 
 }

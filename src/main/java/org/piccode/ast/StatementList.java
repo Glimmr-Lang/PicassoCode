@@ -1,12 +1,14 @@
 package org.piccode.ast;
 
 import java.util.List;
+import org.piccode.rt.PiccodeBoolean;
+import org.piccode.rt.PiccodeValue;
 
 /**
  *
  * @author hexaredecimal
  */
-public class StatementList extends Ast {
+public class StatementList implements Ast {
 	public List<Ast> nodes; 
 
 	public StatementList(List<Ast> nodes) {
@@ -22,6 +24,14 @@ public class StatementList extends Ast {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public PiccodeValue execute() {
+		for (var stmt: nodes) {
+			stmt.execute();
+		}
+		return new PiccodeBoolean("true");
 	}
 
 }

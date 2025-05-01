@@ -1,10 +1,12 @@
 package org.piccode.ast;
 
+import org.piccode.rt.PiccodeValue;
+
 /**
  *
  * @author hexaredecimal
  */
-public class NamedCallArg extends Ast {
+public class NamedCallArg implements Ast {
 	public String name;
 	public Ast value;
 
@@ -19,6 +21,11 @@ public class NamedCallArg extends Ast {
 			return name;
 		}
 		return name  + "=" + value;
+	}
+
+	@Override
+	public PiccodeValue execute() {
+		throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
 	}
 	
 }

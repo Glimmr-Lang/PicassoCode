@@ -1,9 +1,11 @@
 package org.piccode.ast;
 
+import org.piccode.rt.PiccodeValue;
+
 /**
  *
  * @author hexaredecimal
  */
-public class Ast {
-	public int line, column;
+public interface Ast {
+	PiccodeValue execute();
 }

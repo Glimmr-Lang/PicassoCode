@@ -2,12 +2,14 @@ package org.piccode.ast;
 
 import java.util.HashMap;
 import java.util.List;
+import org.piccode.rt.PiccodeObject;
+import org.piccode.rt.PiccodeValue;
 
 /**
  *
  * @author hexaredecimal
  */
-public class ObjectAst extends Ast {
+public class ObjectAst implements Ast {
 	public HashMap<String, Ast> objs;
 
 	public ObjectAst(HashMap<String, Ast> objs) {
@@ -34,6 +36,17 @@ public class ObjectAst extends Ast {
 		}
 		sb.append("}");
 		return sb.toString();
+	}
+
+	@Override
+	public PiccodeValue execute() {
+		HashMap<String, PiccodeValue> obj = new HashMap<>();
+		
+		for (var kv: objs.entrySet()) {
+			obj.put(kv.getKey(), kv.getValue().execute());
+		}
+
+		return new PiccodeObject(obj);
 	}
 
 }

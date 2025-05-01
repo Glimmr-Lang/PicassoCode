@@ -1,12 +1,13 @@
 package org.piccode.ast;
 
 import java.util.List;
+import org.piccode.rt.PiccodeValue;
 
 /**
  *
  * @author hexaredecimal
  */
-public class WhenAst extends Ast {
+public class WhenAst implements Ast {
 	public Ast cond;
 	public List<WhenCase> cases;
 	public Ast else_case;
@@ -32,5 +33,9 @@ public class WhenAst extends Ast {
 		return sb.toString();
 	}
 
+	@Override
+	public PiccodeValue execute() {
+		throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+	}
 	
 }

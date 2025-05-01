@@ -19,8 +19,6 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		var name = tok.getText();
 		var expr = visitExpr(var_decl.expr());
 		var result = new VarDecl(name, expr);
-		result.column = tok.getStartIndex();
-		result.line = tok.getLine();
 		return result;
 	}
 
@@ -45,19 +43,12 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		}
 
 		int i = args.size();
-		while (i > 1) {
-			int index = i - 1;
-			var arg = args.get(index);
-			body = new ClosureAst(arg, body);
-			i--;
-		}
-
-		return new FunctionAst(name, args.getFirst(), body);
+		return new FunctionAst(name, args, body);
 	}
 
 	public List<Arg> visitFuncArgs(Func_argsContext ctx) {
 		var args = new ArrayList<Arg>();
-		
+
 		if (ctx.arg_list() == null) {
 			return args;
 		}
@@ -105,7 +96,7 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 
 	@Override
 	public Ast visitStmt(StmtContext ctx) {
-		if (ctx.expr_stmt()!= null) {
+		if (ctx.expr_stmt() != null) {
 			return visitExpr(ctx.expr_stmt().expr());
 		}
 
@@ -131,7 +122,7 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 
 		return new ImportAst(pkg, module);
 	}
-	
+
 	@Override
 	public Ast visitModule(ModuleContext ctx) {
 		var name = ctx.ID().getText();
@@ -142,9 +133,9 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		return new ModuleAst(name, List.of());
 	}
 
-	public List<Ast> visitModuleStmts (Module_stmtsContext ctx) {
+	public List<Ast> visitModuleStmts(Module_stmtsContext ctx) {
 		var list = new ArrayList<Ast>();
-		for (var stmt: ctx.module_stmt()) {
+		for (var stmt : ctx.module_stmt()) {
 			list.add(visitModuleStmt(stmt));
 		}
 		return list;
@@ -164,7 +155,7 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public Ast visitWhen_expr(When_exprContext ctx) {
 		var expr = visitExpr(ctx.expr());
@@ -178,7 +169,7 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 
 	private List<WhenCase> visitWhenCases(When_casesContext whens) {
 		var cases = new ArrayList<WhenCase>();
-		for (var _case: whens.when_case()) {
+		for (var _case : whens.when_case()) {
 			var match = visitExprlist(_case.expr_list());
 			var value = visitExpr(_case.expr());
 			cases.add(new WhenCase(match, value));
@@ -223,49 +214,48 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		if (expr.GT() != null) {
 			return visitBinOp(">", expr);
 		}
-		
+
 		if (expr.GE() != null) {
 			return visitBinOp(">=", expr);
 		}
-		
+
 		if (expr.LT() != null) {
 			return visitBinOp("<", expr);
 		}
-		
+
 		if (expr.LE() != null) {
 			return visitBinOp("<=", expr);
 		}
 
-		if (expr.EQ()!= null) {
+		if (expr.EQ() != null) {
 			return visitBinOp("==", expr);
 		}
 
-		if (expr.NE()!= null) {
+		if (expr.NE() != null) {
 			return visitBinOp("!=", expr);
 		}
 
-		if (expr.AND()!= null) {
+		if (expr.AND() != null) {
 			return visitBinOp("&&", expr);
 		}
 
-		if (expr.OR()!= null) {
+		if (expr.OR() != null) {
 			return visitBinOp("||", expr);
 		}
 
-
-		if (expr.SHL()!= null) {
+		if (expr.SHL() != null) {
 			return visitBinOp("<<", expr);
 		}
 
-		if (expr.SHR()!= null) {
+		if (expr.SHR() != null) {
 			return visitBinOp(">>", expr);
 		}
 
-		if (expr.BAND()!= null) {
+		if (expr.BAND() != null) {
 			return visitBinOp("&", expr);
 		}
 
-		if (expr.BOR()!= null) {
+		if (expr.BOR() != null) {
 			return visitBinOp("|", expr);
 		}
 
@@ -276,7 +266,7 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		if (expr.DOT() != null) {
 			return visitDotOperation(expr);
 		}
-		
+
 		if (expr.if_expr() != null) {
 			return visitIf_expr(expr.if_expr());
 		}
@@ -284,7 +274,7 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		if (expr.PIPE() != null) {
 			return visitPipeOp(expr);
 		}
-		
+
 		if (expr.array() != null) {
 			return visitArray(expr.array());
 		}
@@ -299,6 +289,16 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 
 		if (expr.ID() != null) {
 			return visitId(expr.ID());
+		}
+
+		if (expr.LPAREN() != null && expr.RPAREN() != null && !expr.expr().isEmpty() && expr.expr().size() == 1 && expr.call_expr_list() == null) {
+			var lp = expr.getChild(0).getText();
+			var rp = expr.getChild(expr.getChildCount() - 1).getText();
+
+			if (lp.equals("(") && rp.equals(")")) {
+				return visitExpr(expr.expr().getFirst());
+			}
+			return visitCall(expr.expr().getFirst(), null);
 		}
 
 		if (!expr.expr().isEmpty() && expr.call_expr_list() == null) {
@@ -321,18 +321,18 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		return new IfExpression(cond, t, f);
 	}
 
-
 	private Ast visitUnaryExpr(UnaryContext ctx) {
 		if (ctx.EXCLAIM() != null) {
 			return new UnaryAst("!", visitExpr(ctx.expr()));
 		}
 
-		if (ctx.BAND()!= null) {
+		if (ctx.BAND() != null) {
 			return new UnaryAst("&", visitExpr(ctx.expr()));
 		}
 
 		return null;
 	}
+
 	public Ast visitCall(ExprContext expr, Call_expr_listContext exprList) {
 		var value = visitExpr(expr);
 		if (exprList == null) {
@@ -345,23 +345,26 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 
 	private List<Ast> visitCallExprList(Call_expr_listContext ctx) {
 		var nodes = new ArrayList<Ast>();
-		for (var call_expr: ctx.call_expr()) {
+		for (var call_expr : ctx.call_expr()) {
 			nodes.add(visitCallExpr(call_expr));
 		}
 		return nodes;
 	}
-	
+
 	public Ast visitCallExpr(Call_exprContext ctx) {
 		if (ctx.ASSIGN() != null) {
 			var id = ctx.ID().getText();
 			var value = visitExpr(ctx.expr());
 			return new NamedCallArg(id, value);
 		}
-		
+
+		if (ctx.ASSIGN() == null && ctx.ID() != null) {
+			return new IdentifierAst(ctx.ID().getText());
+		}
+
 		return visitExpr(ctx.expr());
 	}
 
-	
 	@Override
 	public Ast visitObject(ObjectContext ctx) {
 		var kvs = visitKeyValuePairs(ctx.key_val_pairs());
@@ -406,8 +409,6 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		var number = new NumberAst(NUMBER.getText());
 		var line = NUMBER.getSymbol().getLine();
 		var col = NUMBER.getSymbol().getStartIndex();
-		number.line = line;
-		number.column = col;
 		return number;
 	}
 
@@ -415,8 +416,6 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		var string = new StringAst(STRING.getText());
 		var line = STRING.getSymbol().getLine();
 		var col = STRING.getSymbol().getStartIndex();
-		string.line = line;
-		string.column = col;
 		return string;
 	}
 

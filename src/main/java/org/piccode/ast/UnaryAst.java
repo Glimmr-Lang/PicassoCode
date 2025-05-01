@@ -1,10 +1,12 @@
 package org.piccode.ast;
 
+import org.piccode.rt.PiccodeValue;
+
 /**
  *
  * @author hexaredecimal
  */
-public class UnaryAst extends Ast{
+public class UnaryAst implements Ast{
 	public String op;
 	public Ast expr;
 
@@ -16,6 +18,11 @@ public class UnaryAst extends Ast{
 	@Override
 	public String toString() {
 		return String.format("%s %s", op, expr);
+	}
+
+	@Override
+	public PiccodeValue execute() {
+		throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
 	}
 
 	
