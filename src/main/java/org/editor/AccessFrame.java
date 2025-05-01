@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import org.editor.events.AccessEvents;
 
 /**
  *
@@ -19,6 +20,8 @@ import javax.swing.JTextArea;
  */
 public class AccessFrame extends JPanel {
 
+	private JTextArea msgs;
+	
 	public AccessFrame(int width) {
 		super(new BorderLayout());
 
@@ -26,7 +29,7 @@ public class AccessFrame extends JPanel {
 		this.add(getAccessBar(), BorderLayout.NORTH);
 
 		// Create scrollable text area
-		var msgs = new JTextArea();
+		msgs = new JTextArea();
 		msgs.setLineWrap(true);
 		msgs.setWrapStyleWord(true);
 		var scroll = new JScrollPane(msgs);
@@ -41,6 +44,9 @@ public class AccessFrame extends JPanel {
 		for (String label : labels) {
 			JButton btn = new JButton(label);
 			btn.setToolTipText("Tool: " + label);
+			if (label.equals("Compile")) {
+				btn.addActionListener(e -> AccessEvents.compile(msgs));
+			}
 			buttonBar.add(btn);
 		}
 

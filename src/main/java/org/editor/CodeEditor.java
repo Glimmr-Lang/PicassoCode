@@ -23,15 +23,16 @@ import org.fife.ui.rtextarea.RTextScrollPane;
  */
 public class CodeEditor extends JPanel {
 
+	public RSyntaxTextArea textArea;
 	public CodeEditor() {
 		super(new BorderLayout());
-		RSyntaxTextArea textArea = new RSyntaxTextArea();
+		textArea = new RSyntaxTextArea();
 		textArea.setCodeFoldingEnabled(true);
 		
 		AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
 		atmf.putMapping("text/piccode", "org.piccode.tokenmaker.PiccodeScriptTokenMaker");
 		textArea.setSyntaxEditingStyle("text/piccode");
-		textArea.addParser(new EditorParser());		
+		// textArea.addParser(new EditorParser());		
 
 		CompletionProvider provider = createCompletionProvider();
 		AutoCompletion ac = new AutoCompletion(provider);

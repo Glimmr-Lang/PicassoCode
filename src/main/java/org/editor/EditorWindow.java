@@ -39,6 +39,16 @@ public class EditorWindow extends JFrame {
 					new ImageIcon(EditorWindow.class.getResource("/icons/settings.png"))
 	);
 
+	public CodeEditor editor_panel;
+	private static EditorWindow win = null;
+
+	public static EditorWindow the() {
+		if (win == null) {
+			win = new EditorWindow();
+		}
+		return win;
+	}
+	
 	public EditorWindow() {
 		super("Piccode - DashBoard");
 
@@ -87,7 +97,7 @@ public class EditorWindow extends JFrame {
 		editor_split.setDividerLocation(width - 300);
 		main_panel.add(editor_split, BorderLayout.CENTER);
 
-		var editor_panel = new CodeEditor();
+		editor_panel = new CodeEditor();
 		editor_split.setLeftComponent(editor_panel);
 
 		JSplitPane canvas_split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
