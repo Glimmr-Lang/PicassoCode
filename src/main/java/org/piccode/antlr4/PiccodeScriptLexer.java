@@ -210,9 +210,9 @@ public class PiccodeScriptLexer extends Lexer {
 		"\t\7\2\2\u010a\u0109\3\2\2\2\u010b\u010e\3\2\2\2\u010c\u010a\3\2\2\2\u010c"+
 		"\u010d\3\2\2\2\u010dX\3\2\2\2\u010e\u010c\3\2\2\2\u010f\u0111\t\b\2\2"+
 		"\u0110\u010f\3\2\2\2\u0111\u0112\3\2\2\2\u0112\u0110\3\2\2\2\u0112\u0113"+
-		"\3\2\2\2\u0113\u0114\3\2\2\2\u0114\u0115\b-\3\2\u0115Z\3\2\2\2\17\2\u00cd"+
-		"\u00d3\u00d5\u00db\u00dd\u00e5\u00e7\u00eb\u00f5\u0100\u010c\u0112\4\b"+
-		"\2\2\2\3\2";
+		"\3\2\2\2\u0113\u0114\3\2\2\2\u0114\u0115\b-\2\2\u0115Z\3\2\2\2\17\2\u00cd"+
+		"\u00d3\u00d5\u00db\u00dd\u00e5\u00e7\u00eb\u00f5\u0100\u010c\u0112\3\2"+
+		"\3\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
