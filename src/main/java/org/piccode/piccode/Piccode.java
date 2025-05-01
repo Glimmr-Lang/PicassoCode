@@ -11,7 +11,7 @@ import org.piccode.backend.Compiler;
 public class Piccode {
 
     public static void main(String[] args) {
-			//Compiler.compile();
-			new EditorWindow();
+			// Compiler.compile();
+			EditorWindow.the();
 		}
 }

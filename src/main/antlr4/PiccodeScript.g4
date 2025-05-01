@@ -18,10 +18,10 @@ stmt:
 	| expr_stmt;
 
 import_module:
-	IMPORT ID ':' ID;
+	IMPORT ID COLON ID;
 
 module: 
-	MODULE ID '{' module_stmts '}';
+	MODULE ID LBRACE module_stmts RBRACE;
 
 module_stmts:
 	module_stmt*;
@@ -51,40 +51,38 @@ literal_expr :
 expr_stmt: expr;
 	// parser rules
 expr
-	: expr MUL expr      
-  | expr DIV expr      
-	| expr ADD expr      
-	| expr SUB expr
+	: expr LPAREN call_expr_list? RPAREN
+	| expr PIPE expr         
+  | expr OR expr           
+	| expr AND expr          
+	| expr EQ expr           
+	| expr NE expr           
+	| expr LT expr           
+	| expr LE expr           
+	| expr GT expr           
+	| expr GE expr          
+	| expr SHL expr          
+	| expr SHR expr          
+	| expr BOR expr          
+	| expr BAND expr         
+	| expr ADD expr          
+	| expr SUB expr         
+	| expr MUL expr         
+	| expr DIV expr         
 	| expr DOT expr
-
-	| expr GT expr
-	| expr GE expr
-	| expr LT expr
-	| expr LE expr
-	
-	| expr EQ expr
-	| expr NE expr
-	
-	| expr AND expr
-	| expr OR expr
-
-	| expr SHL expr
-	| expr SHR expr
-	| expr BAND expr
-	| expr BOR expr
-	| expr PIPE expr
+	| LPAREN expr RPAREN
 	| unary
 	| if_expr
-	| expr LPAREN call_expr_list? RPAREN
+	| when_expr
+	| var_decl
 	| array
 	| tuple
 	| object
-	| var_decl
-	| when_expr
 	| ID
 	| NUMBER                           
 	| STRING                           
 	;
+
 
 unary: 
 	EXCLAIM expr
@@ -173,8 +171,8 @@ STRING: '"' (~["\\] | '\\' .)* '"'
 
 DOT: '.';
 
-LINE_COMMENT: '//' ~[\r\n]* -> skip;
-BLOCK_COMMENT: '/*' .*? '*/' -> skip;
+LINE_COMMENT: '//' ~[\r\n]* -> channel(HIDDEN);
+BLOCK_COMMENT: '/*' .*? '*/' -> channel(HIDDEN);
 
 
 ID: [a-zA-Z_][a-zA-Z0-9_]* ;

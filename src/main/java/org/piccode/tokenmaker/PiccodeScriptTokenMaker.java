@@ -69,6 +69,9 @@ public class PiccodeScriptTokenMaker extends AbstractTokenMaker {
 				return Token.LITERAL_NUMBER_DECIMAL_INT;
 			case PiccodeScriptLexer.WS:
 				return Token.WHITESPACE;
+			case PiccodeScriptLexer.LINE_COMMENT:
+			case PiccodeScriptLexer.BLOCK_COMMENT:
+				return Token.COMMENT_DOCUMENTATION;
 			case PiccodeScriptLexer.LPAREN:
 			case PiccodeScriptLexer.RPAREN:
 			case PiccodeScriptLexer.LBRACE:
