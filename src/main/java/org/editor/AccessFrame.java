@@ -20,7 +20,7 @@ import org.editor.events.AccessEvents;
  */
 public class AccessFrame extends JPanel {
 
-	private JTextArea msgs;
+	public static JTextArea msgs;
 	
 	public AccessFrame(int width) {
 		super(new BorderLayout());

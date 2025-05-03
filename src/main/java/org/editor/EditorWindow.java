@@ -16,6 +16,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
@@ -105,7 +106,8 @@ public class EditorWindow extends JFrame {
 		editor_split.setRightComponent(canvas_split);
 
 		var canvas_panel = new CanvasFrame();
-		canvas_split.setLeftComponent(canvas_panel);
+		JScrollPane scrollPane = new JScrollPane(canvas_panel);
+		canvas_split.setLeftComponent(scrollPane);
 
 		var access_panel = new AccessFrame(width);
 		canvas_split.setRightComponent(access_panel);
