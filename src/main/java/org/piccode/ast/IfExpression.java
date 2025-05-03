@@ -40,12 +40,12 @@ public class IfExpression implements Ast{
 	}
 	
 	/*
-	import pkg:io
+import pkg:io
 
 function fact(x=1) = 
   if x <= 1 { 1 }
   else x * fact(x - 1)
 
-IO.println(fact(5))
+IO.println(1 + 2 * 2)
 	*/
 }

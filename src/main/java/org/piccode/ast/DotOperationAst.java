@@ -1,9 +1,12 @@
 package org.piccode.ast;
 
 import org.piccode.rt.Context;
+import org.piccode.rt.PiccodeArray;
 import org.piccode.rt.PiccodeException;
 import org.piccode.rt.PiccodeModule;
+import org.piccode.rt.PiccodeNumber;
 import org.piccode.rt.PiccodeObject;
+import org.piccode.rt.PiccodeTuple;
 import org.piccode.rt.PiccodeValue;
 
 /**
@@ -40,6 +43,17 @@ public class DotOperationAst implements Ast {
 
 		var left = lhs.execute();
 
+		if (left instanceof PiccodeArray arr && rhs instanceof IdentifierAst id && id.text.equals("len")) {
+			return new PiccodeNumber("" + arr.array().length);
+		} 
+		
+		else if (left instanceof PiccodeArray arr){
+			return processArrayIndexing(arr.array(), rhs.execute());
+		}
+		else if (left instanceof PiccodeTuple tupl){
+			return processArrayIndexing(tupl.array(), rhs.execute());
+		}
+		
 		if (left instanceof PiccodeModule mod) {
 			return process(new IdentifierAst(mod.name), mod);
 		}
@@ -107,5 +121,30 @@ public class DotOperationAst implements Ast {
 		}
 
 		throw new PiccodeException("No function or identifier " + _id.text + " found in module " + id.text);
+	}
+
+	private PiccodeValue processArrayIndexing(PiccodeValue[] arr, PiccodeValue execute) {
+		if (!(execute instanceof PiccodeNumber)) {
+			throw new PiccodeException("Attempt to index array value with non numeric index: " + rhs + " which evaluates to " + execute + " is used as an index");
+		}
+
+		int index = (int) ((double) execute.raw());
+		if (index < 0 || index >= arr.length) {
+			throw new PiccodeException("Array index out of bounds: "+  lhs + " evaluates to an array with size" + arr.length + " which is indexed with " + execute);
+		}
+
+		return arr[index];
+	}
+	private PiccodeValue processTupleIndexing(PiccodeValue[] arr, PiccodeValue execute) {
+		if (!(execute instanceof PiccodeNumber)) {
+			throw new PiccodeException("Attempt to index a tuple value with non numeric index: " + rhs + " which evaluates to " + execute + " is used as an index");
+		}
+
+		int index = (int) ((double) execute.raw());
+		if (index < 0 || index >= arr.length) {
+			throw new PiccodeException("Array index out of bounds: "+  lhs + " evaluates to a tuple with size" + arr.length + " which is indexed with " + execute);
+		}
+
+		return arr[index];
 	}
 }

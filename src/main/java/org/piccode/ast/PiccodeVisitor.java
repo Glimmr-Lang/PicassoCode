@@ -267,6 +267,10 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 			return visitDotOperation(expr);
 		}
 
+		if (expr.COLON() != null) {
+			return visitConsOperation(expr);
+		}
+
 		if (expr.if_expr() != null) {
 			return visitIf_expr(expr.if_expr());
 		}
@@ -291,7 +295,11 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 			return visitId(expr.ID());
 		}
 
-		if (expr.LPAREN() != null && expr.RPAREN() != null && !expr.expr().isEmpty() && expr.expr().size() == 1 && expr.call_expr_list() == null) {
+		if (expr.LPAREN() != null && expr.RPAREN() != null && expr.expr() == null) {
+			return new UnitAst();
+		}
+		
+		if (expr.LPAREN() != null && expr.RPAREN() != null && expr.expr() != null && !expr.expr().isEmpty() && expr.expr().size() == 1 && expr.call_expr_list() == null) {
 			var lp = expr.getChild(0).getText();
 			var rp = expr.getChild(expr.getChildCount() - 1).getText();
 
@@ -301,6 +309,7 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 			return visitCall(expr.expr().getFirst(), null);
 		}
 
+		
 		if (!expr.expr().isEmpty() && expr.call_expr_list() == null) {
 			return visitCall(expr, expr.call_expr_list());
 		}
@@ -309,6 +318,12 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 			return visitCall(expr.expr().getFirst(), expr.call_expr_list());
 		}
 
+		//TODO: Remove this dirty hack and actually figure out the bug
+		if (expr.getText().equals("()")) {
+			return new UnitAst();
+		}
+
+		System.out.println("Failing at: " + expr.getText());
 		return null;
 	}
 
@@ -328,6 +343,13 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 
 		if (ctx.BAND() != null) {
 			return new UnaryAst("&", visitExpr(ctx.expr()));
+		}
+
+		if (ctx.SUB() != null) {
+			return new UnaryAst("-", visitExpr(ctx.expr()));
+		}
+		if (ctx.TILDE()!= null) {
+			return new UnaryAst("~", visitExpr(ctx.expr()));
 		}
 
 		return null;
@@ -441,4 +463,11 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		var rhs = visitExpr(expr.expr().getLast());
 		return new PipeAst(lhs, rhs);
 	}
+
+	private Ast visitConsOperation(ExprContext expr) {
+		var lhs = visitExpr(expr.expr().getFirst());
+		var rhs = visitExpr(expr.expr().getLast());
+		return new ListConstAst(lhs, rhs);
+	}
+
 }
