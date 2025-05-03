@@ -174,6 +174,18 @@ public class PiccodeScriptBaseListener implements PiccodeScriptListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIndex_expr(PiccodeScriptParser.Index_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIndex_expr(PiccodeScriptParser.Index_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterUnary(PiccodeScriptParser.UnaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
