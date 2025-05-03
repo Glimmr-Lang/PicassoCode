@@ -1,0 +1,5 @@
+
+module Tuple {
+	function size(tup=(0, 0)) = pic_nat_tuplesize(tup)
+	function toArray(tup=(0, 0)) = pic_nat_tupletoarray(tup)
+}

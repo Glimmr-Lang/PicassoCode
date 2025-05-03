@@ -1,7 +1,6 @@
 
-module IO {
-	function print(msg="") = pic_nat_print(msg)
-	function println(msg="") = pic_nat_print(msg + "\n")
-	function read(msg="Enter text") = pic_nat_read(msg)
+module Array {
+	function concat(left=[], right=[]) = pic_nat_array_concat(left, right)
+	function toString(arr=[]) = pic_nat_array_tostring(arr)
+	function join(array=[], sep=",") = pic_nat_array_join(array, sep)
 }
-
