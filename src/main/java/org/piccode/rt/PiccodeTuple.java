@@ -29,6 +29,10 @@ public class PiccodeTuple implements PiccodeValue {
 		return sb.toString();
 	}
 
+	public PiccodeValue[] array() {
+		return nodes.toArray(PiccodeValue[]::new);
+	}
+
 	@Override
 	public Object raw() {
 		return nodes.toArray(PiccodeValue[]::new);

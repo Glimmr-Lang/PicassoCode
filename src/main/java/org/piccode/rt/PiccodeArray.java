@@ -29,6 +29,14 @@ public class PiccodeArray implements PiccodeValue {
 		return sb.toString();
 	}
 
+	public List<PiccodeValue> getList() {
+		return nodes;
+	}
+
+	public PiccodeValue[] array() {
+		return nodes.toArray(PiccodeValue[]::new);
+	}
+	
 	@Override
 	public Object raw() {
 		return nodes.toArray();

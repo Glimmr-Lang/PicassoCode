@@ -8,8 +8,14 @@ package org.piccode.rt;
 public class PiccodeString implements PiccodeValue {
 	private String string;
 
-	public PiccodeString(String number) {
-		this.string = number;
+	public PiccodeString(String str) {
+		this.string = str;
+		if (str.startsWith("\"") || str.startsWith("'")) {
+			this.string = str.substring(1);
+		} 
+		if (str.endsWith("\"") || str.endsWith("'")) {
+			this.string = this.string.substring(0, string.length() - 1);
+		} 
 	}
 	
 	@Override
