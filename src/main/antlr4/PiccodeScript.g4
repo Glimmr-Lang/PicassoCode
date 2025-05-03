@@ -52,6 +52,8 @@ expr_stmt: expr;
 	// parser rules
 expr
 	: expr LPAREN call_expr_list? RPAREN
+	| var_decl
+	| expr LBRACKET index_expr RBRACE
 	| expr PIPE expr         
   | expr OR expr           
 	| expr AND expr          
@@ -65,16 +67,16 @@ expr
 	| expr SHR expr          
 	| expr BOR expr          
 	| expr BAND expr         
-	| expr ADD expr          
-	| expr SUB expr         
 	| expr MUL expr         
 	| expr DIV expr         
+	| expr ADD expr          
+	| expr SUB expr         
 	| expr DOT expr
-	| LPAREN expr RPAREN
+	| expr COLON expr
+	| LPAREN expr? RPAREN
 	| unary
 	| if_expr
 	| when_expr
-	| var_decl
 	| array
 	| tuple
 	| object
@@ -83,9 +85,15 @@ expr
 	| STRING                           
 	;
 
+index_expr:
+	expr COLON expr
+	| expr;
+
 
 unary: 
 	EXCLAIM expr
+	| SUB expr
+	| TILDE expr
 	| BAND expr;
 
 if_expr:
@@ -148,6 +156,7 @@ COLON: ':';
 COMMA: ',';
 SEMI: ';';
 ARROW: '->';
+TILDE: '~';
 
 
 ASSIGN: '=';
@@ -160,6 +169,7 @@ IS: 'is';
 IF: 'if';
 ELSE: 'else';
 MODULE: 'module';
+DO: 'do';
 
 // Matches both integers and floats (e.g., 123, 45.67)
 NUMBER: [0-9]+ ('.' [0-9]+)?;
