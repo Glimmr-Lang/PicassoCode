@@ -1,5 +1,6 @@
 package org.editor;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -15,6 +17,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.plaf.basic.BasicGraphicsUtils;
 import org.piccode.backend.Compiler;
@@ -29,7 +32,7 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 
 	public static int offsetX = 0;
 	public static int offsetY = 0;
-	private int gridSize = 50;
+	private static int SCALE = 50;
 
 	private int lastMouseX, lastMouseY;
 	private BufferedImage gridImage;
@@ -39,12 +42,20 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 	private float deltaTime; // in seconds
 	private int lastGridOffsetX;
 	private int lastGridOffsetY;
-	private boolean snapToGrid = true;
+	public boolean snapToGrid = true;
+	public boolean showGrid = true;
+	public boolean showHighlight = true;
+	public boolean showRuler = true;
 	private int mouseX = -1;
 	private int mouseY = -1;
 
-	
-	public CanvasFrame() {
+	private boolean selecting = false;
+	private Point selectionStart = null;
+	private Point selectionEnd = null;
+
+	private static CanvasFrame _the = null;
+
+	private CanvasFrame() {
 		super(new BorderLayout());
 		this.setBackground(new Color(18, 18, 18));
 		this.addMouseListener(this);
@@ -61,6 +72,15 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 		});
 		timer.start();
 	}
+
+	public static CanvasFrame the() {
+		if (_the == null) {
+			_the = new CanvasFrame();
+		}
+
+		return _the;
+	}
+
 	private boolean gridImageNeedsUpdate() {
 		return gridImage == null
 						|| offsetX != lastGridOffsetX
@@ -71,22 +91,19 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
-		gfx = g2;
 
-		if (gridImageNeedsUpdate()) {
-			drawGrid();
-		}
+		drawGrid();
 
 		g2.drawImage(gridImage, 0, 0, null);
-		
+
 		// Smooth rendering
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		drawGrid();
 		g2.setColor(Color.BLACK);
 		if (!Compiler.main_loop.isEmpty()) {
 			Context.top.putLocal("dt", new PiccodeNumber(String.format("%s", deltaTime)));
 			try {
 				AccessFrame.msgs.setText("");
+				gfx = g2;
 				for (var stmt : Compiler.main_loop) {
 					stmt.execute();
 				}
@@ -95,25 +112,79 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 			}
 		}
 
-		drawCrosshair(g2);
+		drawSelection(g2);
+		if (showHighlight) {
+			drawCrosshair(g2);
+		}
 
+	}
+
+	private void drawSelection(Graphics2D g2) {
+		if (selecting && selectionStart != null && selectionEnd != null) {
+			Point start = selectionStart;
+			Point end = selectionEnd;
+
+			if (snapToGrid) {
+				start = new Point(snap(start.x), snap(start.y));
+				end = new Point(snap(end.x), snap(end.y));
+			}
+
+			int x = Math.min(start.x, end.x);
+			int y = Math.min(start.y, end.y);
+			int w = Math.abs(start.x - end.x);
+			int h = Math.abs(start.y - end.y);
+
+			// Fill (translucent blue)
+			g2.setColor(new Color(30, 144, 255, 40)); // DodgerBlue with alpha
+			g2.fillRect(x, y, w, h);
+
+			// Border (dashed)
+			g2.setColor(new Color(30, 144, 255));
+			Stroke oldStroke = g2.getStroke();
+			g2.setStroke(createDashedStroke(1.5f));
+			g2.drawRect(x, y, w, h);
+			g2.setStroke(oldStroke);
+		}
+	}
+
+	private static Stroke createDashedStroke(float thickness) {
+		return new BasicStroke(
+						thickness,
+						BasicStroke.CAP_BUTT,
+						BasicStroke.JOIN_MITER,
+						10.0f,
+						new float[]{5.0f, 5.0f},
+						0.0f
+		);
 	}
 
 	// Mouse listeners for panning
 	@Override
 	public void mousePressed(MouseEvent e) {
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			selectionStart = e.getPoint();
+			selectionEnd = e.getPoint();
+			selecting = true;
+			repaint();
+		}
 		lastMouseX = e.getX();
 		lastMouseY = e.getY();
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
+		if (SwingUtilities.isLeftMouseButton(e) && selecting) {
+			selectionEnd = e.getPoint();
+			repaint();
+			return;
+		}
+
 		int mouseX = snapToGrid ? snap(e.getX()) : e.getX();
 		int mouseY = snapToGrid ? snap(e.getY()) : e.getY();
 
 		int dx = mouseX - lastMouseX;
 		int dy = mouseY - lastMouseY;
-		
+
 		offsetX -= dx;
 		offsetY -= dy;
 
@@ -122,25 +193,41 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 			offsetY = snap(offsetY);
 		}
 
-		
 		lastMouseX = e.getX();
 		lastMouseY = e.getY();
 		repaint();
 	}
-	private int snap(int value) {
-		return (value / gridSize) * gridSize;
-	}
 
+	private int snap(int value) {
+		return (value / SCALE) * SCALE;
+	}
 
 	// Empty overrides
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			if (selectionStart != null && selectionEnd != null && selectionStart.distance(selectionEnd) < 5) {
+				// Small click, cancel selection
+				selecting = false;
+				selectionStart = null;
+				selectionEnd = null;
+			}
+			repaint();
+		}
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		mouseX = e.getX();
 		mouseY = e.getY();
+
+		if (snapToGrid) {
+			mouseX = snap(mouseX);
+			mouseY = snap(mouseY);
+		}
+
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
 		repaint();
 	}
 
@@ -167,25 +254,43 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 		g2.setColor(Color.WHITE);
 		g2.fillRect(0, 0, getWidth(), getHeight());
 
-		// Draw grid
-		g2.setColor(new Color(230, 230, 230));
-		for (int x = -offsetX % gridSize; x < getWidth(); x += gridSize) {
-			g2.drawLine(x, 0, x, getHeight());
-		}
-		for (int y = -offsetY % gridSize; y < getHeight(); y += gridSize) {
-			g2.drawLine(0, y, getWidth(), y);
+		if (showGrid) {
+			// Draw grid
+			g2.setColor(new Color(230, 230, 230));
+			for (int x = -offsetX % SCALE; x < getWidth(); x += SCALE) {
+				g2.drawLine(x, 0, x, getHeight());
+			}
+			for (int y = -offsetY % SCALE; y < getHeight(); y += SCALE) {
+				g2.drawLine(0, y, getWidth(), y);
+			}
 		}
 
-		// Draw axis numbers
+		if (showRuler) {
+			// Draw axis numbers
+			g2.setColor(Color.GRAY);
+			for (int x = -offsetX % SCALE; x < getWidth(); x += SCALE) {
+				int value = (x + offsetX) / SCALE;
+				g2.drawString(Integer.toString(value * SCALE), x + 2, 12);
+			}
+			for (int y = -offsetY % SCALE; y < getHeight(); y += SCALE) {
+				int value = (y + offsetY) / SCALE;
+				g2.drawString(Integer.toString(value * SCALE), 2, y - 2);
+			}
+		}
+
+		g2.setColor(Color.BLUE);
+		g2.drawString("x", getWidth() - 20, 20);
+		g2.setColor(Color.RED);
+		g2.drawString("y", 8, getHeight() - 5);
+
 		g2.setColor(Color.GRAY);
-		for (int x = -offsetX % gridSize; x < getWidth(); x += gridSize) {
-			int value = (x + offsetX) / gridSize;
-			g2.drawString(Integer.toString(value), x + 2, 12);
-		}
-		for (int y = -offsetY % gridSize; y < getHeight(); y += gridSize) {
-			int value = (y + offsetY) / gridSize;
-			g2.drawString(Integer.toString(value), 2, y - 2);
-		}
+		int x = (-offsetX % SCALE + offsetX) / SCALE;
+		int y = (-offsetY % SCALE + offsetY) / SCALE;
+		x *= SCALE;
+		y *= SCALE;
+
+		g2.drawString(String.format("(x: %s, y: %s)", x + mouseX, y + mouseY), getWidth() - 100, getHeight() - 5);
+
 		lastGridOffsetX = offsetX;
 		lastGridOffsetY = offsetY;
 	}
@@ -195,17 +300,20 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 	}
 
 	private void drawCrosshair(Graphics2D g2) {
-		if (snapToGrid && mouseX >= 0 && mouseY >= 0) {
-			int snappedX = snap(mouseX);
-			int snappedY = snap(mouseY);
+		if (mouseX >= 0 && mouseY >= 0) {
 
+			if (snapToGrid) {
+				mouseX = snap(mouseX);
+				mouseY = snap(mouseY);
+			}
+			
 			g2.setColor(Color.RED);
-			g2.drawLine(snappedX, 0, snappedX, getHeight()); // vertical
-			g2.drawLine(0, snappedY, getWidth(), snappedY);  // horizontal
+			g2.drawLine(mouseX, 0, mouseX, getHeight()); // vertical
+			g2.drawLine(0, mouseY, getWidth(), mouseY);  // horizontal
 
 			// Optional: draw a small circle at the intersection
 			int radius = 4;
-			g2.fillOval(snappedX - radius, snappedY - radius, radius * 2, radius * 2);
+			g2.fillOval(mouseX - radius, mouseY - radius, radius * 2, radius * 2);
 		}
 	}
 

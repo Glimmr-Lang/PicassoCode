@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import org.editor.events.AccessEvents;
+import org.editor.icons.Icons;
 
 /**
  *
@@ -40,14 +41,18 @@ public class AccessFrame extends JPanel {
 		JPanel buttonBar = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Horizontal layout
 
 		String[] labels = {"Compile", "Render", "Commit", "Export"};
-
-		for (String label : labels) {
-			JButton btn = new JButton(label);
-			btn.setToolTipText("Tool: " + label);
+		String[] icons = {"run", "panorama", "compare-git", "export"};
+		
+		int index = 0;
+		for (String icon: icons) {
+			var label = labels[index];
+			JButton btn = new JButton(Icons.getIcon(icon));
+			btn.setToolTipText(label);
 			if (label.equals("Compile")) {
 				btn.addActionListener(e -> AccessEvents.compile(msgs));
 			}
 			buttonBar.add(btn);
+			index++;
 		}
 
 		return buttonBar;

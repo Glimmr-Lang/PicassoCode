@@ -67,12 +67,12 @@ public class PiccodeGfxModule {
 
 			for (int i = 0; i < xa.size(); i++) {
 				xarr[i] = (int) (double) xa.get(i).raw();
-				xarr[i] = xoff;
+				xarr[i] += xoff;
 			}
 
 			for (int i = 0; i < ya.size(); i++) {
 				yarr[i] = (int) (double) ya.get(i).raw();
-				yarr[i] = yoff;
+				yarr[i] += yoff;
 			}
 			CanvasFrame.gfx.drawPolygon(xarr, yarr, 0);
 			return new PiccodeUnit();
@@ -88,12 +88,12 @@ public class PiccodeGfxModule {
 
 			for (int i = 0; i < xa.size(); i++) {
 				xarr[i] = (int) (double) xa.get(i).raw();
-				xarr[i] = xoff;
+				xarr[i] += xoff;
 			}
 
 			for (int i = 0; i < ya.size(); i++) {
 				yarr[i] = (int) (double) ya.get(i).raw();
-				yarr[i] = yoff;
+				yarr[i] += yoff;
 			}
 			CanvasFrame.gfx.drawPolyline(xarr, yarr, 0);
 			return new PiccodeUnit();
