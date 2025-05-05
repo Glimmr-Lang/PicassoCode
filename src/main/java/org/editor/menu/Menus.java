@@ -5,6 +5,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import org.editor.events.Events;
 import org.editor.icons.Icons;
 import org.fife.ui.rtextarea.RTextArea;
 
@@ -25,52 +26,53 @@ public class Menus {
 
 	private static void addFileMenu(JMenuBar menu_bar) {
 		JMenu fileMenu = new JMenu("File");
-		fileMenu.add(createMenuItem("New Project", "project-setup"));
-		fileMenu.add(createMenuItem("New File", "add-file"));
+		fileMenu.add(new JMenuItem(Events.newProjectAction));
+		fileMenu.add(new JMenuItem(Events.newFileAction));
 		fileMenu.addSeparator();
-		fileMenu.add(createMenuItem("Open Project", "code-folder"));
+		fileMenu.add(new JMenuItem(Events.openProjectAction));
 
 		JMenu recents = new JMenu("Recent Projects");
 		recents.setIcon(Icons.getIcon("time-machine"));
 		fileMenu.add(recents);
 		
-		fileMenu.add(createMenuItem("Close Project", "xxx-folder"));
+		fileMenu.add(new JMenuItem(Events.closeProjectAction));
 		fileMenu.addSeparator();
 
-		fileMenu.add(createMenuItem("Open File", "file"));
+		fileMenu.add(new JMenuItem(Events.openFileAction));
+		
 		JMenu recentfiles = new JMenu("Recent Files");
 		recentfiles.setIcon(Icons.getIcon("restore-page"));
 		fileMenu.add(recentfiles);
-		fileMenu.add(createMenuItem("Close File", "close"));
+		
+		fileMenu.add(new JMenuItem(Events.closeFileAction));
 		fileMenu.addSeparator();
 		
 
 		fileMenu.addSeparator();
-		fileMenu.add(createMenuItem("Save", "save"));
-		fileMenu.add(createMenuItem("Save As", "save-as"));
-		fileMenu.add(createMenuItem("Save All", "save-all"));
+
+		fileMenu.add(new JMenuItem(Events.saveAction));
+		fileMenu.add(new JMenuItem(Events.saveAsAction));
+		fileMenu.add(new JMenuItem(Events.saveAllAction));
+
 		fileMenu.addSeparator();
-		fileMenu.add(createMenuItem("Export", "export"));
+		fileMenu.add(new JMenuItem(Events.exportAction));
 		fileMenu.addSeparator();
 
-		var exit_menu = createMenuItem("Exit", "logout");
-		exit_menu.addActionListener((a) -> System.exit(0));
-		fileMenu.add(exit_menu);
-		
+		fileMenu.add(new JMenuItem(Events.exitAction));
 		menu_bar.add(fileMenu);
 	}
 
 	private static void addEditMenu(JMenuBar menu_bar) {
 		JMenu editMenu = new JMenu("Edit");
-		editMenu.add(createMenuItem("undo", RTextArea.getAction(RTextArea.UNDO_ACTION)));
-		editMenu.add(createMenuItem("redo", RTextArea.getAction(RTextArea.REDO_ACTION)));
+		editMenu.add(createMenuItem("undo", RTextArea.getAction(RTextArea.UNDO_ACTION), "Undo the changes made"));
+		editMenu.add(createMenuItem("redo", RTextArea.getAction(RTextArea.REDO_ACTION), "Redo the changes made"));
 		editMenu.addSeparator();
-		editMenu.add(createMenuItem("cut", RTextArea.getAction(RTextArea.CUT_ACTION)));
-		editMenu.add(createMenuItem("copy-to-clipboard", RTextArea.getAction(RTextArea.COPY_ACTION)));
-		editMenu.add(createMenuItem("paste", RTextArea.getAction(RTextArea.PASTE_ACTION)));
-		editMenu.add(createMenuItem("clear-symbol", RTextArea.getAction(RTextArea.DELETE_ACTION)));
+		editMenu.add(createMenuItem("cut", RTextArea.getAction(RTextArea.CUT_ACTION), "Cut the text into the system clipboard"));
+		editMenu.add(createMenuItem("copy-to-clipboard", RTextArea.getAction(RTextArea.COPY_ACTION), "Copy the text into the system clipboard"));
+		editMenu.add(createMenuItem("paste", RTextArea.getAction(RTextArea.PASTE_ACTION), "Paste from the system clipboard"));
+		editMenu.add(createMenuItem("clear-symbol", RTextArea.getAction(RTextArea.DELETE_ACTION), "Delete selection"));
 		editMenu.addSeparator();
-		editMenu.add(createMenuItem("select-all", RTextArea.getAction(RTextArea.SELECT_ALL_ACTION)));
+		editMenu.add(createMenuItem("select-all", RTextArea.getAction(RTextArea.SELECT_ALL_ACTION), "Delete selection"));
 		menu_bar.add(editMenu);
 	}
 
@@ -81,45 +83,45 @@ public class Menus {
 		tabs.setIcon(Icons.getIcon("layout"));
 		navMenu.add(tabs);
 		
-		tabs.add(createMenuItem("Goto Tab", "shortcut"));
-		tabs.add(createMenuItem("Add Tab", "add"));
-		tabs.add(createMenuItem("Remove Tab", "close"));
+		tabs.add(new JMenuItem(Events.gotoTabAction));
+		tabs.add(new JMenuItem(Events.addTabAction));
+		tabs.add(new JMenuItem(Events.removeTabAction));
 		tabs.addSeparator();
-		tabs.add(createMenuItem("Remove All Tabs", "exit"));
+		tabs.add(new JMenuItem(Events.removeAllTabsAction));
 		tabs.addSeparator();
 		tabs.add(createMenuItem("[Tab: 0]", "restore-window"));
 		
 		navMenu.addSeparator();
-		navMenu.add(createMenuItem("Goto file", "hot-article"));
+		navMenu.add(new JMenuItem(Events.gotoFileAction));
 		
 		menu_bar.add(navMenu);
 	}
 
 	private static void addRunMenu(JMenuBar menu_bar) {
 		JMenu runMenu = new JMenu("Run");
-		runMenu.add(createMenuItem("Compile", "run"));
-		runMenu.add(createMenuItem("Render", "panorama"));
+		runMenu.add(new JMenuItem(Events.compileAction));
+		runMenu.add(new JMenuItem(Events.renderAction));
 		runMenu.addSeparator();
-		runMenu.add(createMenuItem("Run Options", "automatic"));
+		runMenu.add(new JMenuItem(Events.runOptionsAction));
 		menu_bar.add(runMenu);
 	}
 
 	private static void addToolMenu(JMenuBar menu_bar) {
 		JMenu toolsMenu = new JMenu("Tools");
-		toolsMenu.add(createMenuItem("AI", "chatbot"));
-		toolsMenu.add(createMenuItem("Plugins", "plugin"));
+		toolsMenu.add(new JMenuItem(Events.AIAction));
+		toolsMenu.add(new JMenuItem(Events.pluginsAction));
 		toolsMenu.addSeparator();
-		toolsMenu.add(createMenuItem("Options", "options"));
+		toolsMenu.add(new JMenuItem(Events.optionsAction));
 		menu_bar.add(toolsMenu);
 	}
 	
 	private static void addHelp(JMenuBar menu_bar) {
 		JMenu helpMenu = new JMenu("Help");
-		helpMenu.add(createMenuItem("Documentation", "book"));
-		helpMenu.add(createMenuItem("Website", "open-in-browser"));
-		helpMenu.add(createMenuItem("License", "license"));
+		helpMenu.add(new JMenuItem(Events.docsAction));
+		helpMenu.add(new JMenuItem(Events.websiteAction));
+		helpMenu.add(new JMenuItem(Events.licenseAction));
 		helpMenu.addSeparator();
-		helpMenu.add(createMenuItem("About", "about"));
+		helpMenu.add(new JMenuItem(Events.aboutAction));
 		menu_bar.add(helpMenu);
 	}
 	
@@ -139,10 +141,10 @@ public class Menus {
 		return item;
 	}
 	
-	private static JMenuItem createMenuItem(String icon, Action action) {
+	private static JMenuItem createMenuItem(String icon, Action action, String tooltip) {
 		JMenuItem item = new JMenuItem(action);
 		item.setIcon(Icons.getIcon(icon));
-		item.setToolTipText(null); // Swing annoyingly adds tool tip text to the menu item
+		item.setToolTipText(tooltip); // Swing annoyingly adds tool tip text to the menu item
 		return item;
 	}
 	

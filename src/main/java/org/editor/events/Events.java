@@ -1,0 +1,382 @@
+package org.editor.events;
+
+import java.util.HashMap;
+import javax.swing.Action;
+import org.editor.AccessFrame;
+import org.editor.CanvasFrame;
+import static org.editor.events.AccessEvents.compile;
+import org.editor.events.AppAction;
+import org.editor.util.It;
+import org.fife.ui.rtextarea.RTextArea;
+
+/**
+ *
+ * @author hexaredecimal
+ */
+public class Events {
+
+	public static Action compileAction,
+					renderAction,
+					commitAction,
+					exportAction,
+					newProjectAction,
+					newFileAction,
+					openProjectAction,
+					closeProjectAction,
+					openFileAction,
+					closeFileAction,
+					saveAction,
+					saveAsAction,
+					saveAllAction,
+					exitAction,
+					undoAction,
+					redoAction,
+					cutAction,
+					copyAction,
+					pasteActiom,
+					deleteAction,
+					selectAllAction,
+					gotoTabAction,
+					addTabAction,
+					removeTabAction,
+					removeAllTabsAction,
+					gotoFileAction,
+					runOptionsAction,
+					AIAction,
+					pluginsAction,
+					optionsAction,
+					docsAction,
+					websiteAction,
+					licenseAction,
+					aboutAction,
+					showFileTreeAction,
+					searchAction,
+					gridAction,
+					pointAction,
+					rulerAction,
+					snapAction,
+					brushAction,
+					thickBrushAction,
+					bucketToolAction,
+					paintBucketAction,
+					effectsAction;
+
+	public static void loadActions() {
+		compileAction
+						= AppAction
+										.create("Compile")
+										.icon("run")
+										.tooltip("Compile the current script")
+										.shortcut("F5")
+										.handler(e -> compile(AccessFrame.msgs))
+										.build();
+
+		renderAction
+						= AppAction
+										.create("Render")
+										.icon("panorama")
+										.tooltip("Render current script with timer")
+										.shortcut("control shift F5")
+										.handler(e -> It.todo())
+										.build();
+
+		commitAction
+						= AppAction
+										.create("Commit")
+										.icon("compare-git")
+										.tooltip("Commit changes")
+										.shortcut("control shift G")
+										.handler(e -> It.todo())
+										.build();
+
+		exportAction
+						= AppAction
+										.create("Export")
+										.icon("export")
+										.tooltip("Export output to file")
+										.shortcut("F6")
+										.handler(e -> It.todo())
+										.build();
+
+		newProjectAction
+						= AppAction
+										.create("New Project")
+										.icon("project-setup")
+										.tooltip("Initialize a new graphic project")
+										.shortcut("control shift N")
+										.handler(e -> It.todo())
+										.build();
+
+		newFileAction
+						= AppAction
+										.create("New File")
+										.icon("add-file")
+										.tooltip("Create a new file")
+										.shortcut("control N")
+										.handler(e -> It.todo())
+										.build();
+
+		openProjectAction
+						= AppAction
+										.create("Open Project")
+										.icon("code-folder")
+										.tooltip("Open a project from the filesystem")
+										.shortcut("control shift O")
+										.handler(e -> It.todo())
+										.build();
+
+		closeProjectAction
+						= AppAction
+										.create("Close Project")
+										.icon("xxx-folder")
+										.tooltip("Close the currently selected project")
+										.handler(e -> It.todo())
+										.build();
+
+		openFileAction
+						= AppAction
+										.create("Open File")
+										.icon("file")
+										.tooltip("Open a file from the filesystem")
+										.shortcut("control O")
+										.handler(e -> It.todo())
+										.build();
+
+		closeFileAction
+						= AppAction
+										.create("Close File")
+										.icon("close")
+										.tooltip("Close the current file")
+										.handler(e -> It.todo())
+										.build();
+
+		saveAction
+						= AppAction
+										.create("Save")
+										.icon("save")
+										.tooltip("Save")
+										.shortcut("control S")
+										.handler(e -> It.todo())
+										.build();
+
+		saveAsAction
+						= AppAction
+										.create("Save As...")
+										.icon("save-as")
+										.tooltip("Save")
+										.handler(e -> It.todo())
+										.build();
+
+		saveAllAction
+						= AppAction
+										.create("Save All")
+										.icon("save-all")
+										.tooltip("Save All")
+										.shortcut("control shift S")
+										.handler(e -> It.todo())
+										.build();
+
+		exitAction
+						= AppAction
+										.create("Exit")
+										.icon("logout")
+										.shortcut("control Q")
+										.tooltip("Quit")
+										.handler(e -> System.exit(0))
+										.build();
+
+		undoAction = AppAction
+						.from(RTextArea.getAction(RTextArea.UNDO_ACTION), "undo");
+		redoAction = AppAction
+						.from(RTextArea.getAction(RTextArea.REDO_ACTION), "redo");
+		cutAction = AppAction
+						.from(RTextArea.getAction(RTextArea.CUT_ACTION), "cut");
+		copyAction = AppAction
+						.from(RTextArea.getAction(RTextArea.COPY_ACTION), "copy-to-clipboard");
+		pasteActiom = AppAction
+						.from(RTextArea.getAction(RTextArea.PASTE_ACTION), "paste");
+		deleteAction = AppAction
+						.from(RTextArea.getAction(RTextArea.DELETE_ACTION), "clear-symbol");
+		selectAllAction = AppAction
+						.from(RTextArea.getAction(RTextArea.SELECT_ALL_ACTION), "select-all");
+		
+		gotoTabAction
+			= AppAction
+				.create("Goto Tab")
+				.icon("shortcut")
+				.shortcut("control shift J")
+				.tooltip("Jump to specific tab")
+				.handler(e -> It.todo())
+				.build();
+		
+		
+			addTabAction = AppAction
+				.create("Add Tab")
+				.icon("add")
+				.shortcut("control shift T")
+				.tooltip("Add a new tab")
+				.handler(e -> It.todo())
+				.build();
+
+			removeTabAction = AppAction
+				.create("Remove Tab")
+				.icon("close")
+				.shortcut("control R")
+				.tooltip("Remove current tab")
+				.handler(e -> It.todo())
+				.build();
+
+			removeAllTabsAction = AppAction
+				.create("Remove All Tabs")
+				.icon("exit")
+				.shortcut("control shift R")
+				.tooltip("Remove all tabs")
+				.handler(e -> It.todo())
+				.build();
+		
+			gotoFileAction = AppAction
+				.create("Goto file")
+				.icon("hot-article")
+				.shortcut("control shift P")
+				.tooltip("Remove all tabs")
+				.handler(e -> It.todo())
+				.build();
+		
+			runOptionsAction = AppAction
+				.create("Run Options")
+				.icon("automatic")
+				.tooltip("Configure the runtime")
+				.handler(e -> It.todo())
+				.build();
+			
+			AIAction = AppAction
+				.create("AI")
+				.icon("chatbot")
+				.shortcut("control shift L")
+				.tooltip("Chat with an LLM")
+				.handler(e -> It.todo())
+				.build();
+		
+			pluginsAction = AppAction
+				.create("Plugins")
+				.icon("plugin")
+				.shortcut("control R")
+				.tooltip("Remove all tabs")
+				.handler(e -> It.todo())
+				.build();
+		
+			optionsAction = AppAction
+				.create("Options")
+				.icon("options")
+				.tooltip("Configure the system")
+				.handler(e -> It.todo())
+				.build();
+		
+			docsAction = AppAction
+				.create("Documentation")
+				.icon("book")
+				.shortcut("F1")
+				.tooltip("Read the documentation")
+				.handler(e -> It.todo())
+				.build();
+		
+			websiteAction = AppAction
+				.create("Website")
+				.icon("open-in-browser")
+				.shortcut("F2")
+				.tooltip("Open the product site")
+				.handler(e -> It.todo())
+				.build();
+		
+			licenseAction = AppAction
+				.create("License")
+				.icon("license")
+				.shortcut("F4")
+				.tooltip("Remove all tabs")
+				.handler(e -> It.todo())
+				.build();
+		
+			aboutAction = AppAction
+				.create("About")
+				.icon("about")
+				.tooltip("About the product")
+				.handler(e -> It.todo())
+				.build();
+		
+			showFileTreeAction = AppAction
+				.create("Show File Tree")
+				.icon("folder-tree")
+				.tooltip("Toggle showing the file tree")
+				.handler(e -> It.todo())
+				.build();
+			
+			searchAction = AppAction
+				.create("Search...")
+				.icon("Search")
+				.tooltip("Seach for a file or text...")
+				.handler(e -> It.todo())
+				.build();
+
+			gridAction = AppAction
+				.create("Grid")
+				.icon("grid")
+				.tooltip("Toogle grid")
+				.handler(e -> CanvasFrame.the().showGrid = !CanvasFrame.the().showGrid)
+				.build();
+
+			pointAction = AppAction
+				.create("Point")
+				.icon("point")
+				.tooltip("Toogle pointer")
+				.handler(e -> CanvasFrame.the().showHighlight = !CanvasFrame.the().showHighlight)
+				.build();
+
+			rulerAction = AppAction
+				.create("Ruler")
+				.icon("ruler")
+				.tooltip("Toggle measurements")
+				.handler(e -> CanvasFrame.the().showRuler = !CanvasFrame.the().showRuler)
+				.build();
+
+
+			snapAction = AppAction
+				.create("Snap")
+				.icon("add-row")
+				.tooltip("Toogle snap to grid")
+				.handler(e -> CanvasFrame.the().showGrid = !CanvasFrame.the().showGrid)
+				.build();
+
+
+			brushAction = AppAction
+				.create("Brush")
+				.icon("brush")
+				.tooltip("Select paint brush")
+				.handler(e -> It.todo())
+				.build();
+
+
+			thickBrushAction = AppAction
+				.create("ThickBrush")
+				.icon("brush-fat")
+				.tooltip("Adjust paint brush")
+				.handler(e -> It.todo())
+				.build();
+
+
+			paintBucketAction = AppAction
+				.create("PaintBucket")
+				.icon("paint-bucket")
+				.tooltip("Bucket tool")
+				.handler(e -> It.todo())
+				.build();
+
+			effectsAction = AppAction
+				.create("Effects")
+				.icon("effects")
+				.tooltip("Apply visual effects")
+				.handler(e -> It.todo())
+				.build();
+
+
+	}
+}

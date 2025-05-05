@@ -1,12 +1,15 @@
 package org.editor;
 
+import org.editor.events.Events;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import javax.swing.Action;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -40,19 +43,12 @@ public class AccessFrame extends JPanel {
 	private Component getAccessBar() {
 		JPanel buttonBar = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Horizontal layout
 
-		String[] labels = {"Compile", "Render", "Commit", "Export"};
-		String[] icons = {"run", "panorama", "compare-git", "export"};
+		Action[] actions = {Events.compileAction, Events.commitAction, Events.commitAction, Events.exportAction};
 		
-		int index = 0;
-		for (String icon: icons) {
-			var label = labels[index];
-			JButton btn = new JButton(Icons.getIcon(icon));
-			btn.setToolTipText(label);
-			if (label.equals("Compile")) {
-				btn.addActionListener(e -> AccessEvents.compile(msgs));
-			}
+		for (var action: actions) {
+			JButton btn = new JButton(action);
+			btn.setText("");
 			buttonBar.add(btn);
-			index++;
 		}
 
 		return buttonBar;

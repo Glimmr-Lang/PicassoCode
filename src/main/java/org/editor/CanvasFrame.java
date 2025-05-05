@@ -129,8 +129,8 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 				end = new Point(snap(end.x), snap(end.y));
 			}
 
-			int x = Math.min(start.x, end.x);
-			int y = Math.min(start.y, end.y);
+			int x = Math.min(start.x, end.x) + offsetX;
+			int y = Math.min(start.y, end.y) + offsetY;
 			int w = Math.abs(start.x - end.x);
 			int h = Math.abs(start.y - end.y);
 

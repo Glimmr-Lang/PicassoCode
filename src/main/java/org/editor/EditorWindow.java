@@ -17,11 +17,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import org.editor.events.AppAction;
+import org.editor.events.Events;
 import org.editor.icons.Icons;
 import org.editor.menu.Menus;
 import org.fife.ui.rtextarea.RTextArea;
@@ -43,10 +46,15 @@ public class EditorWindow extends JFrame {
 		return win;
 	}
 	
+	public static JRootPane root = null;
 	public EditorWindow() {
 		super("Piccode - DashBoard");
 
+		root = getRootPane();
 		Icons.loadIcons();
+		editor_panel = new CodeEditor();
+		Events.loadActions();
+
 		try {
 			UIManager.setLookAndFeel(new FlatLightLaf());
 		} catch (Exception ex) {
@@ -58,42 +66,21 @@ public class EditorWindow extends JFrame {
 
 		JPanel main_panel = new JPanel(new BorderLayout());
 
-		JPanel cool_bar = new JPanel(new BorderLayout());
-		cool_bar.setPreferredSize(new Dimension(50, height));
-
-// Top button group
-		JPanel top_buttons = new JPanel(new GridLayout(5, 1));
-		top_buttons.setOpaque(false); // transparent to inherit background
-
-		String[] tooltips = {"Show File tree", "Search...", "Use git", "Export to png", "Use a LLM"};
-		var icons = List.of("folder-tree", "search", "compare-git", "export", "chatbot");
-		for (int index = 0; index < icons.size(); index++) {
-			var icon = Icons.getIcon(icons.get(index));
-			JButton btn = new JButton(icon);
-			btn.setToolTipText("Tool: " + tooltips[index]); // Tooltip
-			top_buttons.add(btn);
-		}
-
-// Bottom settings button
-		JPanel bottom_button = new JPanel(new BorderLayout());
-		bottom_button.setOpaque(false);
-
-		JButton settingsBtn = new JButton(Icons.getIcon("settings"));
-		settingsBtn.setToolTipText("Settings");
-
-		bottom_button.add(settingsBtn, BorderLayout.SOUTH);
-
-// Add top and bottom parts to cool_bar
-		cool_bar.add(top_buttons, BorderLayout.NORTH);
-		cool_bar.add(bottom_button, BorderLayout.SOUTH);
-
-		main_panel.add(cool_bar, BorderLayout.WEST);
+		Action[] app_actions = {
+			Events.showFileTreeAction, 
+			Events.searchAction, 
+			Events.commitAction, 
+			Events.exportAction,
+			Events.AIAction, 
+		};
+		var side_panel = makeCoolbar(height, app_actions);
+		
+		main_panel.add(side_panel, BorderLayout.WEST);
 
 		JSplitPane editor_split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		editor_split.setDividerLocation(width - 300);
 		main_panel.add(editor_split, BorderLayout.CENTER);
 
-		editor_panel = new CodeEditor();
 		editor_split.setLeftComponent(editor_panel);
 
 		JSplitPane canvas_split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -104,7 +91,19 @@ public class EditorWindow extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(canvas_panel);
 
 		JPanel render_panel = new JPanel(new BorderLayout());
-		render_panel.add(makeCoolbar(canvas_panel.getHeight()), BorderLayout.EAST);
+		
+		Action[] render_actions = {
+			Events.gridAction, 
+			Events.pointAction, 
+			Events.rulerAction, 
+			Events.snapAction, 
+			Events.brushAction, 
+			Events.thickBrushAction, 
+			Events.paintBucketAction, 
+			Events.effectsAction, 
+		};
+		var short_cuts = makeCoolbar(canvas_panel.getHeight(), render_actions);
+		render_panel.add(short_cuts, BorderLayout.EAST);
 		render_panel.add(scrollPane, BorderLayout.CENTER);
 		canvas_split.setLeftComponent(render_panel);
 
@@ -123,45 +122,18 @@ public class EditorWindow extends JFrame {
 	}
 
 
-	private JPanel makeCoolbar(int height) {
+	private JPanel makeCoolbar(int height, Action ... actions) {
 		JPanel cool_bar = new JPanel(new BorderLayout());
 		cool_bar.setPreferredSize(new Dimension(50, height));
-
-// Top button group
 		JPanel top_buttons = new JPanel(new GridLayout(9, 1));
 		top_buttons.setOpaque(false); // transparent to inherit background
 
-		String[] icons = {"grid", "point", "ruler", "add-row","paint", "brush", "brush-fat", "paint-bucket", "visual-effects"};
-		String[] tooltips = {"toggle grid", "toggle point", "toggle ruler", "toggle snap","paint", "brush", "thick bruch", "bucket-tool", "effects"};
-		for (int index = 0; index < tooltips.length; index++) {
-			var icon = Icons.getIcon(icons[index]);
-			JButton btn = new JButton(icon);
-			btn.setToolTipText(tooltips[index]); // Tooltip
-			if (tooltips[index].equals("toggle point")) {
-				btn.addActionListener(a -> {
-					CanvasFrame.the().showHighlight = !CanvasFrame.the().showHighlight;
-				});
-			}
-			if (tooltips[index].equals("toggle ruler")) {
-				btn.addActionListener(a -> {
-					CanvasFrame.the().showRuler = !CanvasFrame.the().showRuler;
-				});
-			}
-
-			if (tooltips[index].equals("toggle grid")) {
-				btn.addActionListener(a -> {
-					CanvasFrame.the().showGrid = !CanvasFrame.the().showGrid;
-				});
-			}
-			if (tooltips[index].equals("toggle snap")) {
-				btn.addActionListener(a -> {
-					CanvasFrame.the().snapToGrid = !CanvasFrame.the().snapToGrid;
-				});
-			}
+		for (var action: actions) {
+			JButton btn = new JButton(action);
+			btn.setText("");
 			top_buttons.add(btn);
 		}
 
-// Bottom settings button
 		JPanel bottom_button = new JPanel(new BorderLayout());
 		bottom_button.setOpaque(false);
 
@@ -169,13 +141,8 @@ public class EditorWindow extends JFrame {
 		settingsBtn.setToolTipText("Settings");
 
 		bottom_button.add(settingsBtn, BorderLayout.SOUTH);
-
-// Add top and bottom parts to cool_bar
 		cool_bar.add(top_buttons, BorderLayout.NORTH);
 		cool_bar.add(bottom_button, BorderLayout.SOUTH);
-
 		return cool_bar;
 	}
-
-
 }
