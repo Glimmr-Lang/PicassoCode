@@ -3,6 +3,7 @@ package org.piccode.rt.modules;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.editor.icons.ImageLoader;
 import org.piccode.rt.PiccodeArray;
 import org.piccode.rt.PiccodeNumber;
 import org.piccode.rt.PiccodeTuple;
@@ -13,20 +14,16 @@ import org.piccode.rt.PiccodeValue;
  *
  * @author hexaredecimal
  */
-public class PiccodeTupleModule {
+public class PiccodeResourceModule {
 	public static void addFunctions() {
 		
-		NativeFunctionFactory.create("tuplesize", List.of("tuple"), (args, namedArgs) -> {
-				var arr = ((PiccodeTuple) namedArgs.get("tuple")).array().length;
-				return new PiccodeNumber("" + arr);
+		NativeFunctionFactory.create("loadpaint", List.of("src"), (args, namedArgs) -> {
+			var path = namedArgs.get("src").toString();
+			var index = ImageLoader.loadImage(path);
+
+			return new PiccodeNumber("" + index);
 		});
 		
-		NativeFunctionFactory.create("tupletoarray", List.of("tuple"), (args, namedArgs) -> {
-				var arr = ((PiccodeTuple) namedArgs.get("tuple")).array();
-				var list = new ArrayList<PiccodeValue>();
-				list.addAll(Arrays.asList(arr));
-				return new PiccodeArray(list);
-		});
 		
 	}
 }

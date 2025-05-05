@@ -27,6 +27,7 @@ import org.piccode.rt.modules.PiccodeArrayModule;
 import org.piccode.rt.modules.PiccodeGfxModule;
 import org.piccode.rt.modules.PiccodeIOModule;
 import org.piccode.rt.modules.PiccodeMathModule;
+import org.piccode.rt.modules.PiccodeResourceModule;
 import org.piccode.rt.modules.PiccodeStringModule;
 import org.piccode.rt.modules.PiccodeTupleModule;
 
@@ -80,5 +81,6 @@ public class Compiler {
 		PiccodeTupleModule.addFunctions();
 		PiccodeMathModule.addFunctions();
 		PiccodeGfxModule.addFunctions();
+		PiccodeResourceModule.addFunctions();
 	}
 }

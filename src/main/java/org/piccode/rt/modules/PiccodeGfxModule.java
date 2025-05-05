@@ -3,6 +3,7 @@ package org.piccode.rt.modules;
 import java.awt.Color;
 import java.util.List;
 import org.editor.CanvasFrame;
+import org.editor.icons.ImageLoader;
 import org.piccode.rt.PiccodeArray;
 import org.piccode.rt.PiccodeUnit;
 
@@ -96,6 +97,21 @@ public class PiccodeGfxModule {
 				yarr[i] += yoff;
 			}
 			CanvasFrame.gfx.drawPolyline(xarr, yarr, 0);
+			return new PiccodeUnit();
+		});
+
+		NativeFunctionFactory.create("drawimage", List.of("id", "x", "y", "w", "h"), (args, namedArgs) -> {
+			var id= (int) (double) namedArgs.get("id").raw();
+			var x= (int) (double) namedArgs.get("x").raw();
+			var y= (int) (double) namedArgs.get("y").raw();
+			var w= (int) (double) namedArgs.get("w").raw();
+			var h= (int) (double) namedArgs.get("h").raw();
+			var xoff = CanvasFrame.offsetX;
+			var yoff = CanvasFrame.offsetY;
+
+			var img = ImageLoader.getImage(id);
+			
+			CanvasFrame.gfx.drawImage(img, x + xoff, y + yoff, w, h, CanvasFrame.the());
 			return new PiccodeUnit();
 		});
 
