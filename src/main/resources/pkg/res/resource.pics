@@ -1,0 +1,5 @@
+
+module Resources {
+	function loadPaintResource(src="") = pic_nat_loadpaint(src)
+}
+
