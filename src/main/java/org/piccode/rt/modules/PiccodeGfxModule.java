@@ -115,5 +115,13 @@ public class PiccodeGfxModule {
 			return new PiccodeUnit();
 		});
 
+
+		NativeFunctionFactory.create("color", List.of("color"), (args, namedArgs) -> {
+			var rgb = (int) (double) namedArgs.get("color").raw();
+			CanvasFrame.gfx.setColor(new Color(rgb));
+			return new PiccodeUnit();
+		});
+
+		
 	}
 }

@@ -24,6 +24,7 @@ import org.piccode.rt.PiccodeException;
 import org.piccode.rt.PiccodeNumber;
 import org.piccode.rt.PiccodeValue;
 import org.piccode.rt.modules.PiccodeArrayModule;
+import org.piccode.rt.modules.PiccodeColorModule;
 import org.piccode.rt.modules.PiccodeGfxModule;
 import org.piccode.rt.modules.PiccodeIOModule;
 import org.piccode.rt.modules.PiccodeMathModule;
@@ -71,6 +72,9 @@ public class Compiler {
 			msgs.setText(msgs.getText() + "\nCompilation successful: " + LocalDateTime.now());
 		} catch (PiccodeException rte) {
 			msgs.setText(msgs.getText() + "\nError: " + rte.getMessage());
+			System.out.println("ERROR: " + rte.getMessage());
+		} catch (Exception ex) {
+			System.out.println("ERROR: " + ex.getMessage());
 		}
 	}
 
@@ -82,5 +86,6 @@ public class Compiler {
 		PiccodeMathModule.addFunctions();
 		PiccodeGfxModule.addFunctions();
 		PiccodeResourceModule.addFunctions();
+		PiccodeColorModule.addFunctions();
 	}
 }

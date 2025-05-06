@@ -1,5 +1,6 @@
 package org.piccode.rt.modules;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,20 +14,18 @@ import org.piccode.rt.PiccodeValue;
  *
  * @author hexaredecimal
  */
-public class PiccodeTupleModule {
+public class PiccodeColorModule {
 	public static void addFunctions() {
 		
-		NativeFunctionFactory.create("tuplesize", List.of("tuple"), (args, namedArgs) -> {
-				var arr = ((PiccodeTuple) namedArgs.get("tuple")).array().length;
-				return new PiccodeNumber("" + arr);
+		NativeFunctionFactory.create("createcolora", List.of("r", "g", "b", "a"), (args, namedArgs) -> {
+			var r = (int) (double)namedArgs.get("r").raw();
+			var g = (int) (double)namedArgs.get("g").raw();
+			var b = (int) (double)namedArgs.get("b").raw();
+			var a = (int) (double)namedArgs.get("a").raw();
+			var color = new Color(r, g, b, a).getRGB();
+			return new PiccodeNumber("" + color);
 		});
 		
-		NativeFunctionFactory.create("tupletoarray", List.of("tuple"), (args, namedArgs) -> {
-				var arr = ((PiccodeTuple) namedArgs.get("tuple")).array();
-				var list = new ArrayList<PiccodeValue>();
-				list.addAll(Arrays.asList(arr));
-				return new PiccodeArray(list);
-		});
 		
 	}
 }
