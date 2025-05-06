@@ -2,7 +2,12 @@ package org.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JPanel;
+import javax.swing.text.BadLocationException;
 import org.editor.errors.EditorParser;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.BasicCompletion;
@@ -24,6 +29,8 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 public class CodeEditor extends JPanel {
 
 	public RSyntaxTextArea textArea;
+	public File file = null;
+	
 	public CodeEditor() {
 		super(new BorderLayout());
 		textArea = new RSyntaxTextArea();
@@ -42,10 +49,43 @@ public class CodeEditor extends JPanel {
 		sp.setLineNumbersEnabled(true); // Line numbers are enabled by default
 		sp.setFoldIndicatorEnabled(true);
 		sp.setIconRowHeaderEnabled(true);
+
+		try {
+			file = File.createTempFile("piccasso-", "-tmp");
+			file.deleteOnExit();
+		} catch (IOException ex) {
+			Logger.getLogger(CodeEditor.class.getName()).log(Level.SEVERE, null, ex);
+		}
+
+		textArea
+		.addCaretListener(e -> {
+			getCursorPositionText(textArea);
+		});
 		
 		this.add(sp, BorderLayout.CENTER);
 	}
 	
+	public static void getCursorPositionText(RSyntaxTextArea textArea) {
+		try {
+			int caret = textArea.getCaretPosition();
+			int line = textArea.getLineOfOffset(caret);
+			int col = caret - textArea.getLineStartOffset(line);
+			int lines = textArea.getLineCount();
+			var ln_str = "Ln " + (line + 1) + ", Col " + (col + 1);
+			var perc = (line / (double) lines) * 100;
+			EditorWindow.line_info.setText(ln_str);
+			var perc_str = perc == 100 ? "Bottom" : perc == 0 ? "Top" : String.format("%.0f%%", perc);
+			EditorWindow.line_perc.setText(perc_str);
+			EditorWindow.seekBar.setValue(Integer.parseInt(String.format("%.0f", perc)));
+		} catch (BadLocationException e) {
+			var ln_str = "Ln 1 Col 1";
+			var perc_str = "00%";
+			EditorWindow.line_info.setText(ln_str);
+			EditorWindow.line_perc.setText(perc_str);
+			EditorWindow.seekBar.setValue(0);
+		}
+	}
+
 
 	private CompletionProvider createCompletionProvider() {
 

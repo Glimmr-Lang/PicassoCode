@@ -45,8 +45,6 @@ public class Menus {
 		fileMenu.add(recentfiles);
 		
 		fileMenu.add(new JMenuItem(Events.closeFileAction));
-		fileMenu.addSeparator();
-		
 
 		fileMenu.addSeparator();
 
@@ -112,6 +110,22 @@ public class Menus {
 		toolsMenu.add(new JMenuItem(Events.pluginsAction));
 		toolsMenu.addSeparator();
 		toolsMenu.add(new JMenuItem(Events.optionsAction));
+		toolsMenu.addSeparator();
+		
+		JMenu renderToolsMenu = new JMenu("Tools");
+		renderToolsMenu.setIcon(Icons.getIcon("tools"));
+		
+		renderToolsMenu.add(new JMenuItem(Events.normalAction));
+		renderToolsMenu.add(new JMenuItem(Events.gridAction));
+		renderToolsMenu.add(new JMenuItem(Events.pointAction));
+		renderToolsMenu.add(new JMenuItem(Events.rulerAction));
+		renderToolsMenu.add(new JMenuItem(Events.snapAction));
+		renderToolsMenu.add(new JMenuItem(Events.brushAction));
+		renderToolsMenu.add(new JMenuItem(Events.thickBrushAction));
+		renderToolsMenu.add(new JMenuItem(Events.paintBucketAction));
+		renderToolsMenu.add(new JMenuItem(Events.effectsAction));
+		
+		toolsMenu.add(renderToolsMenu);
 		menu_bar.add(toolsMenu);
 	}
 	

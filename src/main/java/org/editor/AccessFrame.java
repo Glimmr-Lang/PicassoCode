@@ -2,21 +2,13 @@ package org.editor;
 
 import org.editor.events.Events;
 import java.awt.BorderLayout;
-import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import javax.swing.Action;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import org.editor.events.AccessEvents;
-import org.editor.icons.Icons;
 
 /**
  *
@@ -34,6 +26,8 @@ public class AccessFrame extends JPanel {
 
 		// Create scrollable text area
 		msgs = new JTextArea();
+		msgs.setEditable(false);
+		msgs.setBackground(this.getBackground());
 		msgs.setLineWrap(true);
 		msgs.setWrapStyleWord(true);
 		var scroll = new JScrollPane(msgs);
@@ -43,7 +37,7 @@ public class AccessFrame extends JPanel {
 	private Component getAccessBar() {
 		JPanel buttonBar = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Horizontal layout
 
-		Action[] actions = {Events.compileAction, Events.commitAction, Events.commitAction, Events.exportAction};
+		Action[] actions = {Events.compileAction, Events.renderAction, Events.commitAction, Events.exportAction};
 		
 		for (var action: actions) {
 			JButton btn = new JButton(action);

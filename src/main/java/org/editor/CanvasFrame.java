@@ -108,6 +108,7 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 					stmt.execute();
 				}
 			} catch (Exception e) {
+				System.out.println("ERROR: " + e.getMessage());
 				Compiler.main_loop.clear();
 			}
 		}

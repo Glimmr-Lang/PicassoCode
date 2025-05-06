@@ -4,6 +4,7 @@ import java.util.HashMap;
 import javax.swing.Action;
 import org.editor.AccessFrame;
 import org.editor.CanvasFrame;
+import org.editor.EditorWindow;
 import static org.editor.events.AccessEvents.compile;
 import org.editor.events.AppAction;
 import org.editor.util.It;
@@ -33,7 +34,7 @@ public class Events {
 					redoAction,
 					cutAction,
 					copyAction,
-					pasteActiom,
+					pasteAction,
 					deleteAction,
 					selectAllAction,
 					gotoTabAction,
@@ -51,6 +52,8 @@ public class Events {
 					aboutAction,
 					showFileTreeAction,
 					searchAction,
+					communityAction,
+					normalAction,
 					gridAction,
 					pointAction,
 					rulerAction,
@@ -193,7 +196,7 @@ public class Events {
 						.from(RTextArea.getAction(RTextArea.CUT_ACTION), "cut");
 		copyAction = AppAction
 						.from(RTextArea.getAction(RTextArea.COPY_ACTION), "copy-to-clipboard");
-		pasteActiom = AppAction
+		pasteAction = AppAction
 						.from(RTextArea.getAction(RTextArea.PASTE_ACTION), "paste");
 		deleteAction = AppAction
 						.from(RTextArea.getAction(RTextArea.DELETE_ACTION), "clear-symbol");
@@ -215,7 +218,7 @@ public class Events {
 				.icon("add")
 				.shortcut("control shift T")
 				.tooltip("Add a new tab")
-				.handler(e -> It.todo())
+				.handler(EditorWindow::addTab)
 				.build();
 
 			removeTabAction = AppAction
@@ -312,8 +315,23 @@ public class Events {
 			
 			searchAction = AppAction
 				.create("Search...")
-				.icon("Search")
+				.icon("search")
 				.tooltip("Seach for a file or text...")
+				.handler(e -> It.todo())
+				.build();
+			
+			communityAction = AppAction
+				.create("Community")
+				.icon("store")
+				.tooltip("Find community packages")
+				.handler(e -> It.todo())
+				.build();
+			
+			normalAction = AppAction
+				.create("Normal")
+				.icon("pointer")
+				.tooltip("Activate normal mode")
+				.shortcut("control I")
 				.handler(e -> It.todo())
 				.build();
 
@@ -321,6 +339,7 @@ public class Events {
 				.create("Grid")
 				.icon("grid")
 				.tooltip("Toogle grid")
+				.shortcut("control G")
 				.handler(e -> CanvasFrame.the().showGrid = !CanvasFrame.the().showGrid)
 				.build();
 
@@ -328,12 +347,14 @@ public class Events {
 				.create("Point")
 				.icon("point")
 				.tooltip("Toogle pointer")
+				.shortcut("control P")
 				.handler(e -> CanvasFrame.the().showHighlight = !CanvasFrame.the().showHighlight)
 				.build();
 
 			rulerAction = AppAction
 				.create("Ruler")
 				.icon("ruler")
+				.shortcut("control M")
 				.tooltip("Toggle measurements")
 				.handler(e -> CanvasFrame.the().showRuler = !CanvasFrame.the().showRuler)
 				.build();
@@ -342,14 +363,16 @@ public class Events {
 			snapAction = AppAction
 				.create("Snap")
 				.icon("add-row")
+				.shortcut("control N")
 				.tooltip("Toogle snap to grid")
-				.handler(e -> CanvasFrame.the().showGrid = !CanvasFrame.the().showGrid)
+				.handler(e -> CanvasFrame.the().snapToGrid = !CanvasFrame.the().snapToGrid)
 				.build();
 
 
 			brushAction = AppAction
 				.create("Brush")
 				.icon("brush")
+				.shortcut("control B")
 				.tooltip("Select paint brush")
 				.handler(e -> It.todo())
 				.build();
@@ -358,6 +381,7 @@ public class Events {
 			thickBrushAction = AppAction
 				.create("ThickBrush")
 				.icon("brush-fat")
+				.shortcut("control H")
 				.tooltip("Adjust paint brush")
 				.handler(e -> It.todo())
 				.build();
@@ -366,13 +390,15 @@ public class Events {
 			paintBucketAction = AppAction
 				.create("PaintBucket")
 				.icon("paint-bucket")
+				.shortcut("control shift F")
 				.tooltip("Bucket tool")
 				.handler(e -> It.todo())
 				.build();
 
 			effectsAction = AppAction
 				.create("Effects")
-				.icon("effects")
+				.icon("visual-effects")
+				.shortcut("control E")
 				.tooltip("Apply visual effects")
 				.handler(e -> It.todo())
 				.build();
