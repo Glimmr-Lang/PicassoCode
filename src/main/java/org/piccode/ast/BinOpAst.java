@@ -68,18 +68,18 @@ public class BinOpAst implements Ast {
 			}
 
 			if (op.equals("<<")) {
-				result = (int) lf.raw() << (int) rh.raw();
+				result = ((int) (double)lf.raw()) << ((int) (double)rh.raw());
 			}
 			if (op.equals(">>")) {
-				result = (int) lf.raw() >> (int) rh.raw();
+				result = ((int) (double)lf.raw()) >> ((int) (double)rh.raw());
 			}
 
 			if (op.equals("|")) {
-				result = (int) lf.raw() | (int) rh.raw();
+				result = ((int) (double)lf.raw()) | ((int) (double)rh.raw());
 			}
 
 			if (op.equals("&")) {
-				result = (int) lf.raw() * (int) rh.raw();
+				result = ((int) (double)lf.raw()) & ((int) (double)rh.raw());
 			}
 			return new PiccodeNumber(String.valueOf(result));
 		}

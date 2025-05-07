@@ -12,6 +12,12 @@ public class StringAst implements Ast {
 
 	public StringAst(String text) {
 		this.text = text;
+		if (text.startsWith("\"") || text.startsWith("'")) {
+			this.text = text.substring(1);
+		} 
+		if (text.endsWith("\"") || text.endsWith("'")) {
+			this.text = this.text.substring(0, text.length() - 1);
+		} 
 	}
 
 	@Override
@@ -21,7 +27,57 @@ public class StringAst implements Ast {
 
 	@Override
 	public PiccodeValue execute() {
-		return new PiccodeString(text);
+		return new PiccodeString(unescapeString(text));
 	}
+	public String unescapeString(String str) {
+		StringBuilder sb = new StringBuilder();
+		boolean isEscaping = false;
 
+		for (int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if (isEscaping) {
+				switch (c) {
+					case 'n':
+						sb.append('\n');
+						break;
+					case 't':
+						sb.append('\t');
+						break;
+					case 'b':
+						sb.append('\b');
+						break;
+					case 'r':
+						sb.append('\r');
+						break;
+					case 'f':
+						sb.append('\f');
+						break;
+					case '\'':
+						sb.append('\'');
+						break;
+					case '\"':
+						sb.append('\"');
+						break;
+					case '\\':
+						sb.append('\\');
+						break;
+					default:
+						sb.append(c);
+						break; // treat unknown escape as literal
+				}
+				isEscaping = false;
+			} else if (c == '\\') {
+				isEscaping = true;
+			} else {
+				sb.append(c);
+			}
+		}
+
+		// In case string ends with single backslash
+		if (isEscaping) {
+			sb.append('\\');
+		}
+
+		return sb.toString();
+	}
 }
