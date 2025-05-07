@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JRootPane;
@@ -28,24 +29,47 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import org.editor.events.Events;
+import org.editor.events.Actions;
 import org.editor.icons.Icons;
 import org.editor.menu.Menus;
+
+import org.fife.rsta.ui.CollapsibleSectionPanel;
+//import org.fife.rsta.ui.DocumentMap;
+import org.fife.rsta.ui.GoToDialog;
+import org.fife.rsta.ui.SizeGripIcon;
+import org.fife.rsta.ui.search.FindDialog;
+import org.fife.rsta.ui.search.ReplaceDialog;
+import org.fife.rsta.ui.search.ReplaceToolBar;
+import org.fife.rsta.ui.search.SearchEvent;
+import org.fife.rsta.ui.search.SearchListener;
+import org.fife.rsta.ui.search.FindToolBar;
+import org.fife.ui.rsyntaxtextarea.ErrorStrip;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+import org.fife.ui.rtextarea.SearchContext;
+import org.fife.ui.rtextarea.SearchEngine;
+import org.fife.ui.rtextarea.SearchResult;
 
 /**
  *
  * @author hexaredecimal
  */
-public final class EditorWindow extends JFrame {
+public final class EditorWindow extends JFrame implements SearchListener{
 
 	private static JTabbedPane tabs = new JTabbedPane();
 	private static HashMap<Integer, CodeEditor> tabEditors;
-	private static EditorWindow win = null;
+	public static EditorWindow win = null;
 	public static JLabel current_file = new JLabel();
 	public static JLabel line_info = new JLabel();
 	public static JLabel line_perc = new JLabel();
 	public static JLabel charset = new JLabel();
 	public static JProgressBar seekBar = new JProgressBar();
+
+	private CollapsibleSectionPanel csp;
+	public static FindDialog findDialog;
+	public static ReplaceDialog replaceDialog;
+	
 
 	public static EditorWindow the() {
 		if (win == null) {
@@ -58,14 +82,15 @@ public final class EditorWindow extends JFrame {
 
 	public EditorWindow() {
 		super("Piccode - DashBoard");
-
+		
 		root = getRootPane();
 		Icons.loadIcons();
 		tabs = new JTabbedPane();
 		tabEditors = new HashMap<>();
 		addTab(null);
 		addPlusTab(tabs);
-		Events.loadActions();
+		Actions.loadActions();
+		initSearchDialogs();
 
 		try {
 			UIManager.setLookAndFeel(new FlatLightLaf());
@@ -79,13 +104,13 @@ public final class EditorWindow extends JFrame {
 		JPanel main_panel = new JPanel(new BorderLayout());
 
 		Action[] app_actions = {
-			Events.showFileTreeAction,
-			Events.searchAction,
-			Events.commitAction,
-			Events.exportAction,
-			Events.AIAction,
-			Events.communityAction,
-			Events.pluginsAction,};
+			Actions.showFileTreeAction,
+			Actions.searchAction,
+			Actions.commitAction,
+			Actions.exportAction,
+			Actions.AIAction,
+			Actions.communityAction,
+			Actions.pluginsAction,};
 		var side_panel = makeCoolbar(height, app_actions);
 
 		main_panel.add(side_panel, BorderLayout.WEST);
@@ -112,15 +137,15 @@ public final class EditorWindow extends JFrame {
 		JPanel render_panel = new JPanel(new BorderLayout());
 
 		Action[] render_actions = {
-			Events.normalAction,
-			Events.gridAction,
-			Events.pointAction,
-			Events.rulerAction,
-			Events.snapAction,
-			Events.brushAction,
-			Events.thickBrushAction,
-			Events.paintBucketAction,
-			Events.effectsAction,};
+			Actions.normalAction,
+			Actions.gridAction,
+			Actions.pointAction,
+			Actions.rulerAction,
+			Actions.snapAction,
+			Actions.brushAction,
+			Actions.thickBrushAction,
+			Actions.paintBucketAction,
+			Actions.effectsAction,};
 		var short_cuts = makeCoolbar(canvas_panel.getHeight(), render_actions);
 		short_cuts.setBorder(BorderFactory.createEmptyBorder());
 		render_panel.add(short_cuts, BorderLayout.EAST);
@@ -136,40 +161,40 @@ public final class EditorWindow extends JFrame {
 		Menus.addMenus(menu_bar);
 
 		Action[] tool_actions = {
-			Events.newProjectAction,
-			Events.newFileAction,
-			Events.openFileAction,
-			Events.openProjectAction,
+			Actions.newProjectAction,
+			Actions.newFileAction,
+			Actions.openFileAction,
+			Actions.openProjectAction,
 			null,
-			Events.saveAction,
-			Events.saveAsAction,
-			Events.saveAllAction,
+			Actions.saveAction,
+			Actions.saveAsAction,
+			Actions.saveAllAction,
 			null,
-			Events.undoAction,
-			Events.redoAction,
-			Events.copyAction,
-			Events.cutAction,
-			Events.pasteAction,
+			Actions.undoAction,
+			Actions.redoAction,
+			Actions.copyAction,
+			Actions.cutAction,
+			Actions.pasteAction,
 			null,
-			Events.compileAction,
-			Events.renderAction,
+			Actions.compileAction,
+			Actions.renderAction,
 			null,
-			Events.exportAction,
-			Events.exitAction,
+			Actions.exportAction,
+			Actions.exitAction,
 			null,
-			Events.normalAction,
-			Events.gridAction,
-			Events.pointAction,
-			Events.rulerAction,
-			Events.snapAction,
-			Events.brushAction,
-			Events.thickBrushAction,
-			Events.paintBucketAction,
-			Events.effectsAction,
+			Actions.normalAction,
+			Actions.gridAction,
+			Actions.pointAction,
+			Actions.rulerAction,
+			Actions.snapAction,
+			Actions.brushAction,
+			Actions.thickBrushAction,
+			Actions.paintBucketAction,
+			Actions.effectsAction,
 			null,
-			Events.docsAction,
-			Events.websiteAction,
-			Events.aboutAction
+			Actions.docsAction,
+			Actions.websiteAction,
+			Actions.aboutAction
 		};
 
 		var tool_bar = makeToolBar(tool_actions);
@@ -202,6 +227,13 @@ public final class EditorWindow extends JFrame {
 		});
 		main_panel.add(bottom_bar, BorderLayout.PAGE_END);
 		
+		tabs.addChangeListener(c -> {
+			var ed = getSelectedEditor();
+			if (ed == null) {
+				return;
+			}
+			CodeEditor.getCursorPositionText(ed.textArea);
+		});
 		
 		this.add(main_panel);
 		this.setSize(width, height);
@@ -209,6 +241,13 @@ public final class EditorWindow extends JFrame {
 		this.setVisible(true);
 	}
 
+	private void initSearchDialogs() {
+		findDialog = new FindDialog(this, this);
+		replaceDialog = new ReplaceDialog(this, this);
+
+		SearchContext context = findDialog.getSearchContext();
+		replaceDialog.setSearchContext(context);
+	}
 	public static void addTab(ActionEvent e) {
 		var index = tabs.getTabCount();
 		var editor = new CodeEditor();
@@ -339,6 +378,43 @@ public final class EditorWindow extends JFrame {
 		toolBar.add(rightPanel, BorderLayout.EAST);
 
 		return toolBar;
+	}
+
+	@Override
+	public void searchEvent(SearchEvent se) {
+		SearchEvent.Type type = se.getType();
+		SearchContext context = se.getSearchContext();
+		SearchResult result;
+		var textArea = getSelectedEditor().textArea;
+
+		switch (type) {
+			default: // Prevent FindBugs warning later
+			case MARK_ALL:
+				result = SearchEngine.markAll(textArea, context);
+				break;
+			case FIND:
+				result = SearchEngine.find(textArea, context);
+				if (!result.wasFound() || result.isWrapped()) {
+					UIManager.getLookAndFeel().provideErrorFeedback(textArea);
+				}
+				break;
+			case REPLACE:
+				result = SearchEngine.replace(textArea, context);
+				if (!result.wasFound() || result.isWrapped()) {
+					UIManager.getLookAndFeel().provideErrorFeedback(textArea);
+				}
+				break;
+			case REPLACE_ALL:
+				result = SearchEngine.replaceAll(textArea, context);
+				JOptionPane.showMessageDialog(null, result.getCount()
+								+ " occurrences replaced.");
+				break;
+		}
+	}
+
+	@Override
+	public String getSelectedText() {
+		return getSelectedEditor().textArea.getSelectedText();
 	}
 
 }

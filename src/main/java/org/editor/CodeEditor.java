@@ -1,14 +1,13 @@
 package org.editor;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.text.BadLocationException;
-import org.editor.errors.EditorParser;
+import org.editor.icons.Icons;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
@@ -16,8 +15,6 @@ import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
-import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
@@ -36,19 +33,24 @@ public class CodeEditor extends JPanel {
 		textArea = new RSyntaxTextArea();
 		textArea.setCodeFoldingEnabled(true);
 		
-		AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
+		var atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
 		atmf.putMapping("text/piccode", "org.piccode.tokenmaker.PiccodeScriptTokenMaker");
 		textArea.setSyntaxEditingStyle("text/piccode");
+		textArea.setMarkOccurrences(true);
 		// textArea.addParser(new EditorParser());		
 
-		CompletionProvider provider = createCompletionProvider();
+		var provider = createCompletionProvider();
 		AutoCompletion ac = new AutoCompletion(provider);
 		ac.install(textArea);
 		
-		RTextScrollPane sp = new RTextScrollPane(textArea);
+		var sp = new RTextScrollPane(textArea);
 		sp.setLineNumbersEnabled(true); // Line numbers are enabled by default
 		sp.setFoldIndicatorEnabled(true);
 		sp.setIconRowHeaderEnabled(true);
+
+		var gutter = sp.getGutter();
+		gutter.setBookmarkingEnabled(true);
+		gutter.setBookmarkIcon(Icons.getIcon("bookmark"));
 
 		try {
 			file = File.createTempFile("piccasso-", "-tmp");

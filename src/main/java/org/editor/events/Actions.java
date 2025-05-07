@@ -1,12 +1,8 @@
 package org.editor.events;
 
-import java.util.HashMap;
 import javax.swing.Action;
-import org.editor.AccessFrame;
 import org.editor.CanvasFrame;
 import org.editor.EditorWindow;
-import static org.editor.events.AccessEvents.compile;
-import org.editor.events.AppAction;
 import org.editor.util.It;
 import org.fife.ui.rtextarea.RTextArea;
 
@@ -14,7 +10,7 @@ import org.fife.ui.rtextarea.RTextArea;
  *
  * @author hexaredecimal
  */
-public class Events {
+public class Actions {
 
 	public static Action compileAction,
 					renderAction,
@@ -62,7 +58,14 @@ public class Events {
 					thickBrushAction,
 					bucketToolAction,
 					paintBucketAction,
-					effectsAction;
+					effectsAction,
+					navBottom,
+					navTop,
+					navLeft,
+					navRight,
+					findAction,
+					gotoLine,
+					replaceAction;
 
 	public static void loadActions() {
 		compileAction
@@ -71,7 +74,7 @@ public class Events {
 										.icon("run")
 										.tooltip("Compile the current script")
 										.shortcut("F5")
-										.handler(e -> compile(AccessFrame.msgs))
+										.handler(AccessEvents::compile)
 										.build();
 
 		renderAction
@@ -80,7 +83,7 @@ public class Events {
 										.icon("panorama")
 										.tooltip("Render current script with timer")
 										.shortcut("control shift F5")
-										.handler(e -> It.todo())
+										.handler(AccessEvents::compileAndRender)
 										.build();
 
 		commitAction
@@ -202,207 +205,256 @@ public class Events {
 						.from(RTextArea.getAction(RTextArea.DELETE_ACTION), "clear-symbol");
 		selectAllAction = AppAction
 						.from(RTextArea.getAction(RTextArea.SELECT_ALL_ACTION), "select-all");
-		
+
+		findAction
+						= AppAction
+										.create("Find")
+										.icon("find")
+										.shortcut("control F")
+										.tooltip("Search for a specific term")
+										.handler(MenuEvents::findEvent)
+										.build();
+
+		replaceAction
+						= AppAction
+										.create("Replace")
+										.icon("find-and-replace")
+										.shortcut("control H")
+										.tooltip("Replace occurances of a sstring")
+										.handler(MenuEvents::replaceEvent)
+										.build();
+
+		gotoLine
+						= AppAction
+										.create("Goto Line")
+										.icon("line")
+										.shortcut("control L")
+										.tooltip("Jump to a specific line")
+										.handler(MenuEvents::gotoLineEvent)
+										.build();
+
 		gotoTabAction
-			= AppAction
-				.create("Goto Tab")
-				.icon("shortcut")
-				.shortcut("control shift J")
-				.tooltip("Jump to specific tab")
-				.handler(e -> It.todo())
-				.build();
-		
-		
-			addTabAction = AppAction
-				.create("Add Tab")
-				.icon("add")
-				.shortcut("control shift T")
-				.tooltip("Add a new tab")
-				.handler(EditorWindow::addTab)
-				.build();
+						= AppAction
+										.create("Goto Tab")
+										.icon("shortcut")
+										.shortcut("control shift J")
+										.tooltip("Jump to specific tab")
+										.handler(e -> It.todo())
+										.build();
 
-			removeTabAction = AppAction
-				.create("Remove Tab")
-				.icon("close")
-				.shortcut("control R")
-				.tooltip("Remove current tab")
-				.handler(e -> It.todo())
-				.build();
+		addTabAction = AppAction
+						.create("Add Tab")
+						.icon("add")
+						.shortcut("control shift T")
+						.tooltip("Add a new tab")
+						.handler(EditorWindow::addTab)
+						.build();
 
-			removeAllTabsAction = AppAction
-				.create("Remove All Tabs")
-				.icon("exit")
-				.shortcut("control shift R")
-				.tooltip("Remove all tabs")
-				.handler(e -> It.todo())
-				.build();
-		
-			gotoFileAction = AppAction
-				.create("Goto file")
-				.icon("hot-article")
-				.shortcut("control shift P")
-				.tooltip("Remove all tabs")
-				.handler(e -> It.todo())
-				.build();
-		
-			runOptionsAction = AppAction
-				.create("Run Options")
-				.icon("automatic")
-				.tooltip("Configure the runtime")
-				.handler(e -> It.todo())
-				.build();
-			
-			AIAction = AppAction
-				.create("AI")
-				.icon("chatbot")
-				.shortcut("control shift L")
-				.tooltip("Chat with an LLM")
-				.handler(e -> It.todo())
-				.build();
-		
-			pluginsAction = AppAction
-				.create("Plugins")
-				.icon("plugin")
-				.shortcut("control R")
-				.tooltip("Remove all tabs")
-				.handler(e -> It.todo())
-				.build();
-		
-			optionsAction = AppAction
-				.create("Options")
-				.icon("options")
-				.tooltip("Configure the system")
-				.handler(e -> It.todo())
-				.build();
-		
-			docsAction = AppAction
-				.create("Documentation")
-				.icon("book")
-				.shortcut("F1")
-				.tooltip("Read the documentation")
-				.handler(e -> It.todo())
-				.build();
-		
-			websiteAction = AppAction
-				.create("Website")
-				.icon("open-in-browser")
-				.shortcut("F2")
-				.tooltip("Open the product site")
-				.handler(e -> It.todo())
-				.build();
-		
-			licenseAction = AppAction
-				.create("License")
-				.icon("license")
-				.shortcut("F4")
-				.tooltip("Remove all tabs")
-				.handler(e -> It.todo())
-				.build();
-		
-			aboutAction = AppAction
-				.create("About")
-				.icon("about")
-				.tooltip("About the product")
-				.handler(e -> It.todo())
-				.build();
-		
-			showFileTreeAction = AppAction
-				.create("Show File Tree")
-				.icon("folder-tree")
-				.tooltip("Toggle showing the file tree")
-				.handler(e -> It.todo())
-				.build();
-			
-			searchAction = AppAction
-				.create("Search...")
-				.icon("search")
-				.tooltip("Seach for a file or text...")
-				.handler(e -> It.todo())
-				.build();
-			
-			communityAction = AppAction
-				.create("Community")
-				.icon("store")
-				.tooltip("Find community packages")
-				.handler(e -> It.todo())
-				.build();
-			
-			normalAction = AppAction
-				.create("Normal")
-				.icon("pointer")
-				.tooltip("Activate normal mode")
-				.shortcut("control I")
-				.handler(e -> It.todo())
-				.build();
+		removeTabAction = AppAction
+						.create("Remove Tab")
+						.icon("close")
+						.shortcut("control R")
+						.tooltip("Remove current tab")
+						.handler(e -> It.todo())
+						.build();
 
-			gridAction = AppAction
-				.create("Grid")
-				.icon("grid")
-				.tooltip("Toogle grid")
-				.shortcut("control G")
-				.handler(e -> CanvasFrame.the().showGrid = !CanvasFrame.the().showGrid)
-				.build();
+		removeAllTabsAction = AppAction
+						.create("Remove All Tabs")
+						.icon("delete-document")
+						.shortcut("control shift R")
+						.tooltip("Remove all tabs")
+						.handler(e -> It.todo())
+						.build();
 
-			pointAction = AppAction
-				.create("Point")
-				.icon("point")
-				.tooltip("Toogle pointer")
-				.shortcut("control P")
-				.handler(e -> CanvasFrame.the().showHighlight = !CanvasFrame.the().showHighlight)
-				.build();
+		gotoFileAction = AppAction
+						.create("Goto file")
+						.icon("hot-article")
+						.shortcut("control shift P")
+						.tooltip("Goto file")
+						.handler(e -> It.todo())
+						.build();
 
-			rulerAction = AppAction
-				.create("Ruler")
-				.icon("ruler")
-				.shortcut("control M")
-				.tooltip("Toggle measurements")
-				.handler(e -> CanvasFrame.the().showRuler = !CanvasFrame.the().showRuler)
-				.build();
+		runOptionsAction = AppAction
+						.create("Run Options")
+						.icon("automatic")
+						.tooltip("Configure the runtime")
+						.handler(e -> It.todo())
+						.build();
 
+		AIAction = AppAction
+						.create("AI")
+						.icon("chatbot")
+						.shortcut("control shift L")
+						.tooltip("Chat with an LLM")
+						.handler(e -> It.todo())
+						.build();
 
-			snapAction = AppAction
-				.create("Snap")
-				.icon("add-row")
-				.shortcut("control N")
-				.tooltip("Toogle snap to grid")
-				.handler(e -> CanvasFrame.the().snapToGrid = !CanvasFrame.the().snapToGrid)
-				.build();
+		pluginsAction = AppAction
+						.create("Plugins")
+						.icon("plugin")
+						.shortcut("control R")
+						.tooltip("Browse/Install community plugins")
+						.handler(e -> It.todo())
+						.build();
 
+		optionsAction = AppAction
+						.create("Options")
+						.icon("options")
+						.tooltip("Configure the system")
+						.handler(e -> It.todo())
+						.build();
 
-			brushAction = AppAction
-				.create("Brush")
-				.icon("brush")
-				.shortcut("control B")
-				.tooltip("Select paint brush")
-				.handler(e -> It.todo())
-				.build();
+		docsAction = AppAction
+						.create("Documentation")
+						.icon("book")
+						.shortcut("F1")
+						.tooltip("Read the documentation")
+						.handler(e -> It.todo())
+						.build();
 
+		websiteAction = AppAction
+						.create("Website")
+						.icon("open-in-browser")
+						.shortcut("F2")
+						.tooltip("Open the product site")
+						.handler(e -> It.todo())
+						.build();
 
-			thickBrushAction = AppAction
-				.create("ThickBrush")
-				.icon("brush-fat")
-				.shortcut("control H")
-				.tooltip("Adjust paint brush")
-				.handler(e -> It.todo())
-				.build();
+		licenseAction = AppAction
+						.create("License")
+						.icon("license")
+						.shortcut("F4")
+						.tooltip("License")
+						.handler(e -> It.todo())
+						.build();
 
+		aboutAction = AppAction
+						.create("About")
+						.icon("about")
+						.tooltip("About the product")
+						.handler(e -> It.todo())
+						.build();
 
-			paintBucketAction = AppAction
-				.create("PaintBucket")
-				.icon("paint-bucket")
-				.shortcut("control shift F")
-				.tooltip("Bucket tool")
-				.handler(e -> It.todo())
-				.build();
+		showFileTreeAction = AppAction
+						.create("Show File Tree")
+						.icon("folder-tree")
+						.tooltip("Toggle showing the file tree")
+						.handler(e -> It.todo())
+						.build();
 
-			effectsAction = AppAction
-				.create("Effects")
-				.icon("visual-effects")
-				.shortcut("control E")
-				.tooltip("Apply visual effects")
-				.handler(e -> It.todo())
-				.build();
+		searchAction = AppAction
+						.create("Search...")
+						.icon("search")
+						.tooltip("Seach for a file or text...")
+						.handler(e -> It.todo())
+						.build();
 
+		communityAction = AppAction
+						.create("Community")
+						.icon("store")
+						.tooltip("Find community packages")
+						.handler(e -> It.todo())
+						.build();
+
+		normalAction = AppAction
+						.create("Normal")
+						.icon("pointer")
+						.tooltip("Activate normal mode")
+						.shortcut("control I")
+						.handler(e -> It.todo())
+						.build();
+
+		gridAction = AppAction
+						.create("Grid")
+						.icon("grid")
+						.tooltip("Toogle grid")
+						.shortcut("control G")
+						.handler(e -> CanvasFrame.the().showGrid = !CanvasFrame.the().showGrid)
+						.build();
+
+		pointAction = AppAction
+						.create("Point")
+						.icon("point")
+						.tooltip("Toogle pointer")
+						.shortcut("control P")
+						.handler(e -> CanvasFrame.the().showHighlight = !CanvasFrame.the().showHighlight)
+						.build();
+
+		rulerAction = AppAction
+						.create("Ruler")
+						.icon("ruler")
+						.shortcut("control M")
+						.tooltip("Toggle measurements")
+						.handler(e -> CanvasFrame.the().showRuler = !CanvasFrame.the().showRuler)
+						.build();
+
+		snapAction = AppAction
+						.create("Snap")
+						.icon("add-row")
+						.shortcut("control N")
+						.tooltip("Toogle snap to grid")
+						.handler(e -> CanvasFrame.the().snapToGrid = !CanvasFrame.the().snapToGrid)
+						.build();
+
+		brushAction = AppAction
+						.create("Brush")
+						.icon("brush")
+						.shortcut("control B")
+						.tooltip("Select paint brush")
+						.handler(e -> It.todo())
+						.build();
+
+		thickBrushAction = AppAction
+						.create("ThickBrush")
+						.icon("brush-fat")
+						.shortcut("control shift H")
+						.tooltip("Adjust paint brush")
+						.handler(e -> It.todo())
+						.build();
+
+		paintBucketAction = AppAction
+						.create("PaintBucket")
+						.icon("paint-bucket")
+						.shortcut("control shift F")
+						.tooltip("Bucket tool")
+						.handler(e -> It.todo())
+						.build();
+
+		effectsAction = AppAction
+						.create("Effects")
+						.icon("visual-effects")
+						.shortcut("control E")
+						.tooltip("Apply visual effects")
+						.handler(e -> It.todo())
+						.build();
+
+		navBottom = AppAction
+						.create("Botton")
+						.icon("navigation-toolbar-bottom")
+						.tooltip("Toogle the bottom view")
+						.handler(e -> It.todo())
+						.build();
+
+		navTop = AppAction
+						.create("Top")
+						.icon("navigation-toolbar-top")
+						.tooltip("Toogle the top view")
+						.handler(e -> It.todo())
+						.build();
+
+		navLeft = AppAction
+						.create("Left")
+						.icon("navigation-toolbar-left")
+						.tooltip("Toogle the left view")
+						.handler(e -> It.todo())
+						.build();
+
+		navRight = AppAction
+						.create("Right")
+						.icon("right-navigation-toolbar")
+						.tooltip("Toogle the right view")
+						.handler(e -> It.todo())
+						.build();
 
 	}
 }

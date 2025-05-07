@@ -1,7 +1,7 @@
 package org.editor.events;
 
-import java.time.LocalDateTime;
-import javax.swing.JTextArea;
+import java.awt.event.ActionEvent;
+import org.editor.AccessFrame;
 import org.editor.EditorWindow;
 import org.piccode.backend.Compiler;
 
@@ -11,11 +11,15 @@ import org.piccode.backend.Compiler;
  */
 public class AccessEvents {
 
-	public static void compile(JTextArea msgs) {
-		var app = EditorWindow.the();
-		var code = app.getSelectedEditor().textArea.getText();
-
-		msgs.setText("Compilation started: " + LocalDateTime.now());
-		Compiler.compile(code, msgs);
+	public static void compileAndRender(ActionEvent e) {
+		var code = EditorWindow.getSelectedEditor().textArea.getText();
+		AccessFrame.writeSuccess("Compilation started: ");
+		Compiler.compile(code, true);
+	}
+	
+	public static void compile(ActionEvent e) {
+		var code = EditorWindow.getSelectedEditor().textArea.getText();
+		AccessFrame.writeSuccess("Compilation started: ");
+		Compiler.compile(code, false);
 	}
 }
