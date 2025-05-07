@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.swing.JTextArea;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.editor.AccessFrame;
 import org.editor.errors.IDEErrorListener;
 import org.piccode.antlr4.PiccodeScriptLexer;
 import org.piccode.antlr4.PiccodeScriptParser;
@@ -39,8 +40,8 @@ import org.piccode.rt.modules.PiccodeTupleModule;
 public class Compiler {
 
 	public static List<Ast> main_loop = new ArrayList<>();
-	
-	public static void compile(String code, JTextArea msgs) {
+
+	public static void compile(String code, boolean render) {
 
 		var lexer = new PiccodeScriptLexer(CharStreams.fromString(code));
 		var parser = new PiccodeScriptParser(new CommonTokenStream(lexer));
@@ -53,33 +54,35 @@ public class Compiler {
 
 		var visitor = new PiccodeVisitor();
 
-		msgs.setText(msgs.getText() + "\nParsing: " + LocalDateTime.now());
+		AccessFrame.writeWarning("Starting Parsing");
 		var result = (StatementList) visitor.visit(parser.stmts());
 		Context.top.pushStack();
 		Context.top.putLocal("true", new PiccodeBoolean("true"));
 		Context.top.putLocal("false", new PiccodeBoolean("false"));
-		addGlobalFunctions(msgs);
-		msgs.setText(msgs.getText() + "\nExec: " + LocalDateTime.now());
+		addGlobalFunctions();
+		AccessFrame.writeWarning("Staring execution");
 		try {
 			main_loop.clear();
-			for (var stmt: result.nodes) {
+			for (var stmt : result.nodes) {
 				if (stmt instanceof FunctionAst || stmt instanceof ImportAst || stmt instanceof ModuleAst) {
 					stmt.execute();
 					continue;
-				} 
-				main_loop.add(stmt);
+				}
+				if (render) {
+					main_loop.add(stmt);
+				}else {
+					stmt.execute();
+				}
 			}
-			msgs.setText(msgs.getText() + "\nCompilation successful: " + LocalDateTime.now());
-		} catch (PiccodeException rte) {
-			msgs.setText(msgs.getText() + "\nError: " + rte.getMessage());
-			System.out.println("ERROR: " + rte.getMessage());
-		} catch (Exception ex) {
-			System.out.println("ERROR: " + ex.getMessage());
+			AccessFrame.writeSuccess("Compilation successful:  ");
+		} catch (Exception rte) {
+			rte.printStackTrace();
+			AccessFrame.writeError(rte.getMessage());
 		}
 	}
 
-	private static void addGlobalFunctions(JTextArea msgs) {
-		PiccodeIOModule.addFunctions(msgs);
+	private static void addGlobalFunctions() {
+		PiccodeIOModule.addFunctions();
 		PiccodeArrayModule.addFunctions();
 		PiccodeStringModule.addFunctions();
 		PiccodeTupleModule.addFunctions();
