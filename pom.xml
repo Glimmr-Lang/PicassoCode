@@ -37,6 +37,12 @@
 			<version>3.3.2</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.fifesoft</groupId>
+			<artifactId>rstaui</artifactId>
+			<version>3.3.1</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>
