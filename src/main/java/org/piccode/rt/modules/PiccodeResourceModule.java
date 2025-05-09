@@ -1,13 +1,8 @@
 package org.piccode.rt.modules;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.editor.icons.ImageLoader;
-import org.piccode.rt.PiccodeArray;
 import org.piccode.rt.PiccodeNumber;
-import org.piccode.rt.PiccodeTuple;
-import org.piccode.rt.PiccodeValue;
 
 
 /**

@@ -45,25 +45,18 @@ public class ImportAst implements Ast {
 	}
 
 	private void loadModuleFromStdLib(String module) {
-		try {
-			var file = new File(ImportAst.class.getResource("/pkg/" + module).toURI());
-
-			if (file.isFile()) {
-				throw new PiccodeException("Invalid module " + module + " in pkg");
-			}
-
-			for (var fp : file.listFiles()) {
-				if (fp.getName().endsWith(".pics")) {
-					var code = readFile(fp);
-					if (code == null) {
-						throw new PiccodeException("Invalid module " + module + " in pkg");
-					}
-					_import(code);
+		var file = new File("pkg/" + module);
+		if (file.isFile()) {
+			throw new PiccodeException("Invalid module " + module + " in pkg");
+		}
+		for (var fp : file.listFiles()) {
+			if (fp.getName().endsWith(".pics")) {
+				var code = readFile(fp);
+				if (code == null) {
+					throw new PiccodeException("Invalid module " + module + " in pkg");
 				}
+				_import(code);
 			}
-
-		} catch (URISyntaxException ex) {
-			throw new PiccodeException("Falied to import module " + module + " from pkg");
 		}
 	}
 
