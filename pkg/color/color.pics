@@ -1,9 +1,8 @@
 
 module Color {
 
-	function createRgba(r=255, g=255, b=255, a=255) = pic_nat_createcolora(r, g, b, a)
-	function createRgb(r=255, g=255, b=255) = pic_nat_createcolora(r, g, b, 255)
-	function create(r=255, g=255, b=255) = pic_nat_createcolora(r, g, b, 255)
+	function new_a(r=255, g=255, b=255, a=255) = pic_nat_createcolora(r, g, b, a)
+	function new(r=255, g=255, b=255) = pic_nat_createcolora(r, g, b, 255)
 
 	let RED  = pic_nat_createcolora(255, 0, 0, 255)
 	let GREEN = pic_nat_createcolora(0, 255, 0, 255)
