@@ -11,13 +11,7 @@ public class StringAst implements Ast {
 	public String text; 
 
 	public StringAst(String text) {
-		this.text = text;
-		if (text.startsWith("\"") || text.startsWith("'")) {
-			this.text = text.substring(1);
-		} 
-		if (text.endsWith("\"") || text.endsWith("'")) {
-			this.text = this.text.substring(0, text.length() - 1);
-		} 
+		this.text = text.substring(1, text.length() - 1);
 	}
 
 	@Override
