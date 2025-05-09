@@ -99,11 +99,11 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 		// Smooth rendering
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setColor(Color.BLACK);
+		gfx = g2;
 		if (!Compiler.main_loop.isEmpty()) {
 			Context.top.putLocal("dt", new PiccodeNumber(String.format("%s", deltaTime)));
 			try {
 				AccessFrame.msgs.setText("");
-				gfx = g2;
 				for (var stmt : Compiler.main_loop) {
 					stmt.execute();
 				}

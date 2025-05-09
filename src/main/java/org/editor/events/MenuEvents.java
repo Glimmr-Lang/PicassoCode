@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import org.editor.EditorWindow;
+import org.editor.dialogs.AboutDialog;
 import org.fife.rsta.ui.GoToDialog;
 
 /**
@@ -53,5 +54,17 @@ public class MenuEvents {
 			replaceDialog.setVisible(false);
 		}
 		findDialog.setVisible(true);
+	}
+	
+	public static void aboutDialog(ActionEvent e) {
+		var _ = new AboutDialog(EditorWindow.win);
+	}
+
+	public static void closeTab(ActionEvent e) {
+		EditorWindow.removeTab();
+	}
+	
+	public static void closeAllTabs(ActionEvent e) {
+		EditorWindow.removeAllTabs();
 	}
 }

@@ -1,5 +1,6 @@
 package org.editor;
 
+import org.editor.panels.DashboardPanel;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,7 +12,9 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.HashMap;
+import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -55,7 +58,7 @@ import org.fife.ui.rtextarea.SearchResult;
  *
  * @author hexaredecimal
  */
-public final class EditorWindow extends JFrame implements SearchListener{
+public final class EditorWindow extends JFrame implements SearchListener {
 
 	private static JTabbedPane tabs = new JTabbedPane();
 	private static HashMap<Integer, CodeEditor> tabEditors;
@@ -69,7 +72,6 @@ public final class EditorWindow extends JFrame implements SearchListener{
 	private CollapsibleSectionPanel csp;
 	public static FindDialog findDialog;
 	public static ReplaceDialog replaceDialog;
-	
 
 	public static EditorWindow the() {
 		if (win == null) {
@@ -82,13 +84,14 @@ public final class EditorWindow extends JFrame implements SearchListener{
 
 	public EditorWindow() {
 		super("Piccode - DashBoard");
-		
+
 		root = getRootPane();
 		Icons.loadIcons();
 		tabs = new JTabbedPane();
 		tabEditors = new HashMap<>();
+		CodeEditor.createTemplateManager();
+
 		addTab(null);
-		addPlusTab(tabs);
 		Actions.loadActions();
 		initSearchDialogs();
 
@@ -214,7 +217,7 @@ public final class EditorWindow extends JFrame implements SearchListener{
 		} else {
 			current_file.setText("[NONE]");
 		}
-		
+
 		var bottom_bar = makeLRToolBar(new Component[]{
 			current_file,
 			null
@@ -223,10 +226,9 @@ public final class EditorWindow extends JFrame implements SearchListener{
 			line_perc,
 			seekBar,
 			null,
-			charset,
-		});
+			charset,});
 		main_panel.add(bottom_bar, BorderLayout.PAGE_END);
-		
+
 		tabs.addChangeListener(c -> {
 			var ed = getSelectedEditor();
 			if (ed == null) {
@@ -234,7 +236,8 @@ public final class EditorWindow extends JFrame implements SearchListener{
 			}
 			CodeEditor.getCursorPositionText(ed.textArea);
 		});
-		
+
+		this.setIconImage(Icons.getIcon("appicon").getImage());
 		this.add(main_panel);
 		this.setSize(width, height);
 		this.setLocationRelativeTo(null);
@@ -248,17 +251,20 @@ public final class EditorWindow extends JFrame implements SearchListener{
 		SearchContext context = findDialog.getSearchContext();
 		replaceDialog.setSearchContext(context);
 	}
+
 	public static void addTab(ActionEvent e) {
 		var index = tabs.getTabCount();
 		var editor = new CodeEditor();
-		if (index > 0) {
+		if (index >= 1) {
 			tabs.remove(index - 1);
 			index = tabs.getTabCount();
 		}
 		tabEditors.put(index, editor);
 		tabs.addTab("", editor);
 		tabs.setTabComponentAt(tabs.getTabCount() - 1, makeTabHeader(tabs, editor.file == null ? "Tab " + index : editor.file.getName()));
-		if (index > 0) addPlusTab(tabs);
+		if (index >= 0) {
+			addPlusTab(tabs);
+		}
 	}
 
 	public static CodeEditor getSelectedEditor() {
@@ -267,8 +273,9 @@ public final class EditorWindow extends JFrame implements SearchListener{
 	}
 
 	private static void addPlusTab(JTabbedPane tabs) {
-		var editor = new CodeEditor(); // will never be shown
-		tabs.addTab("", editor);
+		var dashb = new JPanel(new BorderLayout());
+		dashb.add(new DashboardPanel(), BorderLayout.CENTER);
+		tabs.addTab("", new JScrollPane(dashb));
 
 		JButton plusBtn = new JButton();
 		plusBtn.setIcon(Icons.getIcon("add"));
@@ -308,6 +315,28 @@ public final class EditorWindow extends JFrame implements SearchListener{
 
 		return tabHeader;
 	}
+
+	public static void removeTab() {
+		if (tabs.getTabCount() == 1) {
+			return;
+		}
+
+		int index = tabs.getSelectedIndex();
+		tabEditors.remove(index);
+		tabs.remove(index);
+	}
+
+	public static void removeAllTabs() {
+		int count = tabs.getTabCount();
+	
+		for (int index = 0; index < count - 1; index++) {
+			tabEditors.remove(index);
+			tabs.remove(index);
+		}
+		addTab(null);
+		removeTab();
+	}
+
 
 	private JPanel makeCoolbar(int height, Action... actions) {
 		JPanel cool_bar = new JPanel(new BorderLayout());

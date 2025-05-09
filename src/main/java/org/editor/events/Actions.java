@@ -255,7 +255,7 @@ public class Actions {
 						.icon("close")
 						.shortcut("control R")
 						.tooltip("Remove current tab")
-						.handler(e -> It.todo())
+						.handler(MenuEvents::closeTab)
 						.build();
 
 		removeAllTabsAction = AppAction
@@ -263,7 +263,7 @@ public class Actions {
 						.icon("delete-document")
 						.shortcut("control shift R")
 						.tooltip("Remove all tabs")
-						.handler(e -> It.todo())
+						.handler(MenuEvents::closeAllTabs)
 						.build();
 
 		gotoFileAction = AppAction
@@ -332,7 +332,7 @@ public class Actions {
 						.create("About")
 						.icon("about")
 						.tooltip("About the product")
-						.handler(e -> It.todo())
+						.handler(MenuEvents::aboutDialog)
 						.build();
 
 		showFileTreeAction = AppAction

@@ -14,8 +14,11 @@ import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
+import org.fife.ui.rsyntaxtextarea.CodeTemplateManager;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
+import org.fife.ui.rsyntaxtextarea.templates.CodeTemplate;
+import org.fife.ui.rsyntaxtextarea.templates.StaticCodeTemplate;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 
@@ -37,6 +40,7 @@ public class CodeEditor extends JPanel {
 		atmf.putMapping("text/piccode", "org.piccode.tokenmaker.PiccodeScriptTokenMaker");
 		textArea.setSyntaxEditingStyle("text/piccode");
 		textArea.setMarkOccurrences(true);
+		RSyntaxTextArea.setTemplatesEnabled(true);
 		// textArea.addParser(new EditorParser());		
 
 		var provider = createCompletionProvider();
@@ -48,6 +52,8 @@ public class CodeEditor extends JPanel {
 		sp.setFoldIndicatorEnabled(true);
 		sp.setIconRowHeaderEnabled(true);
 
+
+		
 		var gutter = sp.getGutter();
 		gutter.setBookmarkingEnabled(true);
 		gutter.setBookmarkIcon(Icons.getIcon("bookmark"));
@@ -106,8 +112,31 @@ public class CodeEditor extends JPanel {
 
 
 		provider.addCompletion(new ShorthandCompletion(provider, "mod", "module ModuleName {}"));
+		provider.addCompletion(new ShorthandCompletion(provider, "ifelse", "if true { } else { }"));
+		provider.addCompletion(new ShorthandCompletion(provider, "function", "function name() = 0"));
+		provider.addCompletion(new ShorthandCompletion(provider, "import", "import mod"));
+		provider.addCompletion(new ShorthandCompletion(provider, "pkg", "input pkg:"));
+		provider.addCompletion(new ShorthandCompletion(provider, "when", "when true {}"));
 
 		return provider;
 
+	}
+
+	public static void createTemplateManager() {
+		CodeTemplateManager ctm = RSyntaxTextArea.getCodeTemplateManager();
+		String[][] templates = {
+			{"drawRect", "drawRect(x, y, w, h)"},
+			{"drawOval", "drawOval(x, y, w, h)"},
+			{"drawSquare", "drawSquare(x, y, side)"},
+			{"drawString", "drawString(str, x, y)"},
+			{"drawPolygon", "drawPolygon(xarray, yarray)"},
+			{"drawPolyline", "drawPolyline(xarray, yarray)"},
+			{"drawImage", "drawImage(id, x, y, w, h)"},
+			{"color", "color(r, g, b)"},
+		};
+		for (var template: templates) {
+			var ct = new StaticCodeTemplate(template[0], template[1], null);
+			ctm.addTemplate(ct);
+		}
 	}
 }
