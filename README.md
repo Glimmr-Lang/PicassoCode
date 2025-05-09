@@ -31,15 +31,17 @@ $ mvn package
 $ java -jar target/Piccode-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-## References
-[java image filters](http://www.jhlabs.com/ip/filters/index.html)
-[Icons8 Pack](https://icons8.com/icons/parakeet--style-parakeet)
 
 ## Inspired by
 Piccassocode is heavily inspired by the [OpenSCAD](https://openscad.org/) program and tries to mimic its functionality
 as much as it can while still being an image editor. I was stoked when I tried OpenSCAD for the first time and ended up
 challenging myself to start a new project based araound the idea. A friend suggested something that has to do with graphics
 and my first though was OpenSCAD, but 2D. The idea quickly grew and the small program became and image editor. 
+
+## References
+[java image filters](http://www.jhlabs.com/ip/filters/index.html)
+
+[Icons8 Pack](https://icons8.com/icons/parakeet--style-parakeet)
 
 ## License
 ```sh
