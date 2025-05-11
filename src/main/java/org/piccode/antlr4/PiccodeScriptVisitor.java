@@ -91,12 +91,6 @@ public interface PiccodeScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpr(PiccodeScriptParser.ExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PiccodeScriptParser#index_expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIndex_expr(PiccodeScriptParser.Index_exprContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PiccodeScriptParser#unary}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -186,4 +180,10 @@ public interface PiccodeScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitKey_val_pairs(PiccodeScriptParser.Key_val_pairsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PiccodeScriptParser#do_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDo_expr(PiccodeScriptParser.Do_exprContext ctx);
 }

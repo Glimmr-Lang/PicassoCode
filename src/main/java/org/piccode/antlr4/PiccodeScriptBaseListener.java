@@ -174,18 +174,6 @@ public class PiccodeScriptBaseListener implements PiccodeScriptListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIndex_expr(PiccodeScriptParser.Index_exprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIndex_expr(PiccodeScriptParser.Index_exprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterUnary(PiccodeScriptParser.UnaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -361,6 +349,18 @@ public class PiccodeScriptBaseListener implements PiccodeScriptListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitKey_val_pairs(PiccodeScriptParser.Key_val_pairsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDo_expr(PiccodeScriptParser.Do_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDo_expr(PiccodeScriptParser.Do_exprContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
