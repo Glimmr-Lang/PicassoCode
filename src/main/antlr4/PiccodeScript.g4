@@ -53,7 +53,7 @@ expr_stmt: expr;
 expr
 	: expr LPAREN call_expr_list? RPAREN
 	| var_decl
-	| expr LBRACKET index_expr RBRACE
+	| expr DOT expr
 	| expr PIPE expr         
   | expr OR expr           
 	| expr AND expr          
@@ -77,6 +77,7 @@ expr
 	| unary
 	| if_expr
 	| when_expr
+	| do_expr
 	| array
 	| tuple
 	| object
@@ -84,10 +85,6 @@ expr
 	| NUMBER                           
 	| STRING                           
 	;
-
-index_expr:
-	expr COLON expr
-	| expr;
 
 
 unary: 
@@ -122,6 +119,7 @@ call_expr: ID (ASSIGN expr)?
 key_val_pair: ID COLON expr;
 key_val_pairs: key_val_pair (COMMA key_val_pair)*;
 
+do_expr: DO LBRACE expr* RBRACE;
 
 	// lexer rules
 ADD: '+';
