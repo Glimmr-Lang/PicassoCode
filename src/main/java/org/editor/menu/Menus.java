@@ -1,6 +1,8 @@
 package org.editor.menu;
 
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -9,8 +11,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JTextField;
+import org.editor.EditorWindow;
 import org.editor.SearchInput;
 import org.editor.events.Actions;
+import org.editor.fs.FilePersistance;
 import org.editor.icons.Icons;
 import org.fife.ui.rtextarea.RTextArea;
 
@@ -19,7 +23,7 @@ import org.fife.ui.rtextarea.RTextArea;
  * @author hexaredecimal
  */
 public class Menus {
-	
+
 	public static void addMenus(JMenuBar menu_bar) {
 		addFileMenu(menu_bar);
 		addEditMenu(menu_bar);
@@ -37,9 +41,9 @@ public class Menus {
 		searchField.setMaximumSize(new Dimension(150, searchSize.height)); // Limit max width
 		menu_bar.add(searchField);
 		menu_bar.add(Box.createRigidArea(new Dimension(5, 0)));
-		
+
 		Action[] actions = {Actions.navBottom, Actions.navTop, Actions.navLeft, Actions.navRight};
-		for (var action: actions) {
+		for (var action : actions) {
 			JButton btn = new JButton(action);
 			btn.setText("");
 			menu_bar.add(btn);
@@ -56,16 +60,28 @@ public class Menus {
 		JMenu recents = new JMenu("Recent Projects");
 		recents.setIcon(Icons.getIcon("time-machine"));
 		fileMenu.add(recents);
-		
+
 		fileMenu.add(new JMenuItem(Actions.closeProjectAction));
 		fileMenu.addSeparator();
 
 		fileMenu.add(new JMenuItem(Actions.openFileAction));
-		
+
 		JMenu recentfiles = new JMenu("Recent Files");
 		recentfiles.setIcon(Icons.getIcon("restore-page"));
+
+		FilePersistance
+						.getRecentFiles()
+						.forEach(item -> {
+							var fp = new File(item);
+							var menuItem = createMenuItem(fp.getName(), "file", (e) -> {
+								var path = fp.toPath();
+								EditorWindow.addTab(path, null);
+							});
+							recentfiles.add(menuItem);
+						});
+
 		fileMenu.add(recentfiles);
-		
+
 		fileMenu.add(new JMenuItem(Actions.closeFileAction));
 
 		fileMenu.addSeparator();
@@ -103,11 +119,11 @@ public class Menus {
 
 	private static void addNavigateMenu(JMenuBar menu_bar) {
 		JMenu navMenu = new JMenu("Navigage");
-		
+
 		JMenu tabs = new JMenu("Tabs");
 		tabs.setIcon(Icons.getIcon("layout"));
 		navMenu.add(tabs);
-		
+
 		tabs.add(new JMenuItem(Actions.gotoTabAction));
 		tabs.add(new JMenuItem(Actions.addTabAction));
 		tabs.add(new JMenuItem(Actions.removeTabAction));
@@ -115,10 +131,10 @@ public class Menus {
 		tabs.add(new JMenuItem(Actions.removeAllTabsAction));
 		tabs.addSeparator();
 		tabs.add(createMenuItem("[Tab: 0]", "restore-window"));
-		
+
 		navMenu.addSeparator();
 		navMenu.add(new JMenuItem(Actions.gotoFileAction));
-		
+
 		menu_bar.add(navMenu);
 	}
 
@@ -138,10 +154,10 @@ public class Menus {
 		toolsMenu.addSeparator();
 		toolsMenu.add(new JMenuItem(Actions.optionsAction));
 		toolsMenu.addSeparator();
-		
+
 		JMenu renderToolsMenu = new JMenu("Tools");
 		renderToolsMenu.setIcon(Icons.getIcon("tools"));
-		
+
 		renderToolsMenu.add(new JMenuItem(Actions.normalAction));
 		renderToolsMenu.add(new JMenuItem(Actions.gridAction));
 		renderToolsMenu.add(new JMenuItem(Actions.pointAction));
@@ -151,11 +167,11 @@ public class Menus {
 		renderToolsMenu.add(new JMenuItem(Actions.thickBrushAction));
 		renderToolsMenu.add(new JMenuItem(Actions.paintBucketAction));
 		renderToolsMenu.add(new JMenuItem(Actions.effectsAction));
-		
+
 		toolsMenu.add(renderToolsMenu);
 		menu_bar.add(toolsMenu);
 	}
-	
+
 	private static void addHelp(JMenuBar menu_bar) {
 		JMenu helpMenu = new JMenu("Help");
 		helpMenu.add(new JMenuItem(Actions.docsAction));
@@ -165,28 +181,23 @@ public class Menus {
 		helpMenu.add(new JMenuItem(Actions.aboutAction));
 		menu_bar.add(helpMenu);
 	}
-	
-	private static JMenuItem createMenuItem(Action action) {
-		JMenuItem item = new JMenuItem(action);
-		item.setToolTipText(null); // Swing annoyingly adds tool tip text to the menu item
-		return item;
-	}
-	
-	private static JMenuItem createMenuItem(String text) {
-		JMenuItem item = new JMenuItem(text);
-		return item;
-	}
-	
+
 	private static JMenuItem createMenuItem(String text, String icon) {
 		JMenuItem item = new JMenuItem(text, Icons.getIcon(icon));
 		return item;
 	}
-	
+
+	private static JMenuItem createMenuItem(String text, String icon, ActionListener listener) {
+		JMenuItem item = new JMenuItem(text, Icons.getIcon(icon));
+		item.addActionListener(listener);
+		return item;
+	}
+
 	private static JMenuItem createMenuItem(String icon, Action action, String tooltip) {
 		JMenuItem item = new JMenuItem(action);
 		item.setIcon(Icons.getIcon(icon));
 		item.setToolTipText(tooltip); // Swing annoyingly adds tool tip text to the menu item
 		return item;
 	}
-	
+
 }

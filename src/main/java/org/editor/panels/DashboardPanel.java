@@ -4,6 +4,21 @@
  */
 package org.editor.panels;
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import org.editor.EditorWindow;
+import org.editor.events.ListAction;
+import org.editor.fs.FilePersistance;
+import org.editor.icons.Icons;
+
 /**
  *
  * @author hexaredecimal
@@ -15,6 +30,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 	 */
 	public DashboardPanel() {
 		initComponents();
+		loadPersistedState();
 	}
 
 	/**
@@ -28,6 +44,8 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     jLabel1 = new javax.swing.JLabel();
     jPanel1 = new javax.swing.JPanel();
+    jScrollPane2 = new javax.swing.JScrollPane();
+    rFilesList = new javax.swing.JList<>(filesModel);
     jPanel2 = new javax.swing.JPanel();
     jButton1 = new javax.swing.JButton();
     jButton2 = new javax.swing.JButton();
@@ -35,24 +53,34 @@ public class DashboardPanel extends javax.swing.JPanel {
     jCheckBox1 = new javax.swing.JCheckBox();
     jLabel2 = new javax.swing.JLabel();
     jLabel3 = new javax.swing.JLabel();
+    jPanel3 = new javax.swing.JPanel();
+    jScrollPane3 = new javax.swing.JScrollPane();
+    rProjList = new javax.swing.JList<>();
 
     jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/applogo/dashboard.png"))); // NOI18N
     jLabel1.setToolTipText("");
     jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
     jLabel1.setName(""); // NOI18N
 
-    jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Recent Projects", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("sansserif", 1, 13), new java.awt.Color(255, 153, 51))); // NOI18N
+    jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Recent Files", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("sansserif", 1, 13), new java.awt.Color(255, 153, 51))); // NOI18N
     jPanel1.setAutoscrolls(true);
+
+    jScrollPane2.setViewportView(rFilesList);
 
     javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
     jPanel1.setLayout(jPanel1Layout);
     jPanel1Layout.setHorizontalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 339, Short.MAX_VALUE)
+      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(jScrollPane2)
+        .addContainerGap())
     );
     jPanel1Layout.setVerticalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 0, Short.MAX_VALUE)
+      .addGroup(jPanel1Layout.createSequentialGroup()
+        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
+        .addContainerGap())
     );
 
     jPanel2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
@@ -111,17 +139,40 @@ public class DashboardPanel extends javax.swing.JPanel {
         .addContainerGap())
     );
 
+    jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Recent Projects", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("sansserif", 1, 13), new java.awt.Color(255, 153, 51))); // NOI18N
+    jPanel3.setAutoscrolls(true);
+
+    jScrollPane3.setViewportView(rProjList);
+
+    javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+    jPanel3.setLayout(jPanel3Layout);
+    jPanel3Layout.setHorizontalGroup(
+      jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(jPanel3Layout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(jScrollPane3)
+        .addContainerGap())
+    );
+    jPanel3Layout.setVerticalGroup(
+      jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(jPanel3Layout.createSequentialGroup()
+        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
+        .addContainerGap())
+    );
+
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
     this.setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
         .addGap(56, 56, 56)
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
           .addGroup(layout.createSequentialGroup()
             .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+              .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
           .addComponent(jLabel1))
         .addContainerGap(56, Short.MAX_VALUE))
     );
@@ -131,17 +182,66 @@ public class DashboardPanel extends javax.swing.JPanel {
         .addContainerGap()
         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-          .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        .addContainerGap(15, Short.MAX_VALUE))
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+          .addGroup(layout.createSequentialGroup()
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addContainerGap(17, Short.MAX_VALUE))
     );
   }// </editor-fold>//GEN-END:initComponents
 
   private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    // TODO add your handling code here:
+		// TODO add your handling code here:
   }//GEN-LAST:event_jButton1ActionPerformed
 
+	private void loadPersistedState() {
+		FilePersistance
+						.getRecentFiles()
+						.forEach(item -> {
+							var fp = new File(item);
+							var path = fp.toPath().toString();
+							filesModel.addElement(new ListItem(path, Icons.getIcon("file")));
+						});
+
+		Action displayAction = new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				var list = (JList<ListItem>) e.getSource();
+				var value = list.getSelectedValue().name;
+				EditorWindow.addTab(new File(value).toPath(), null);
+			}
+		};
+
+		rFilesList.setCellRenderer(new ListItemRenderer());
+		var _ = new ListAction(rFilesList, displayAction);
+	}
+
+	private static DefaultListModel<ListItem> filesModel = new DefaultListModel<>();
+	private static DefaultListModel<ListItem> projectModel = new DefaultListModel<>();
+
+	class ListItem {
+
+		String name;
+		Icon icon;
+
+		public ListItem(String name, Icon icon) {
+			this.name = name;
+			this.icon = icon;
+		}
+	}
+
+	class ListItemRenderer extends DefaultListCellRenderer {
+
+		@Override
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			ListItem item = (ListItem) value;
+			JLabel label = (JLabel) super.getListCellRendererComponent(list, item.name, index, isSelected, cellHasFocus);
+			label.setIcon(item.icon);
+			return label;
+		}
+	}
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton jButton1;
@@ -153,5 +253,10 @@ public class DashboardPanel extends javax.swing.JPanel {
   private javax.swing.JLabel jLabel3;
   private javax.swing.JPanel jPanel1;
   private javax.swing.JPanel jPanel2;
+  private javax.swing.JPanel jPanel3;
+  private javax.swing.JScrollPane jScrollPane2;
+  private javax.swing.JScrollPane jScrollPane3;
+  private javax.swing.JList<ListItem> rFilesList;
+  private javax.swing.JList<String> rProjList;
   // End of variables declaration//GEN-END:variables
 }

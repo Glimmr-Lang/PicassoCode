@@ -1,6 +1,5 @@
 package org.editor.events;
 
-
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +13,7 @@ import javax.swing.text.BadLocationException;
 import org.editor.CodeEditor;
 import org.editor.EditorWindow;
 import org.editor.dialogs.AboutDialog;
+import org.editor.fs.FileFilter;
 import org.fife.rsta.ui.GoToDialog;
 import org.fife.ui.rsyntaxtextarea.FileLocation;
 
@@ -64,15 +64,15 @@ public class MenuEvents {
 		}
 		findDialog.setVisible(true);
 	}
-	
+
 	public static void aboutDialog(ActionEvent e) {
-		var _ = new AboutDialog(EditorWindow.win);
+		var  _ = new AboutDialog(EditorWindow.win);
 	}
 
 	public static void closeTab(ActionEvent e) {
 		EditorWindow.removeTab();
 	}
-	
+
 	public static void closeAllTabs(ActionEvent e) {
 		EditorWindow.removeAllTabs();
 	}
@@ -80,6 +80,9 @@ public class MenuEvents {
 	static void openFile(ActionEvent e) {
 		// TODO: Use the System object to get the current pwd
 		var fileChooser = new JFileChooser(".");
+		fileChooser.setFileFilter(FileFilter.mdFilter);
+		fileChooser.setFileFilter(FileFilter.picsFilter);
+
 		int status = fileChooser.showOpenDialog(EditorWindow.win);
 		if (status != JFileChooser.APPROVE_OPTION) {
 			return;
@@ -87,31 +90,27 @@ public class MenuEvents {
 
 		var fp = fileChooser.getSelectedFile();
 		var path = fp.toPath();
-		try {
-			EditorWindow.addTab(path, null);
-			var loc = FileLocation.create(fp);
-			var ed = EditorWindow.getSelectedEditor();
-			ed.setIsTmp(false);
-			ed.textArea.load(loc);
-		} catch (IOException ex) {
-			JOptionPane.showMessageDialog(EditorWindow.win, ex);
-		}
+		EditorWindow.addTab(path, null);
 	}
 
 	static void saveFile(ActionEvent e) {
-			if (EditorWindow.tabsCount() == 1) {
-				return;
-			}
-			var ed = EditorWindow.getSelectedEditor();
-			ed.saveFile();
+		if (EditorWindow.tabsCount() == 1) {
+			return;
+		}
+		var ed = EditorWindow.getSelectedEditor();
+		ed.saveFile();
 	}
-	
+
 	static void saveFileAs(ActionEvent e) {
-			if (EditorWindow.tabsCount() == 1) {
-				return;
-			}
-			var ed = EditorWindow.getSelectedEditor();
-			ed.saveFileAs();
+		if (EditorWindow.tabsCount() == 1) {
+			return;
+		}
+		var ed = EditorWindow.getSelectedEditor();
+		ed.saveFileAs();
+	}
+
+	static void saveAllFiles(ActionEvent e) {
+		EditorWindow.saveAll();
 	}
 
 	static void closeFile(ActionEvent e) {

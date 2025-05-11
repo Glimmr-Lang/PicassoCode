@@ -1,6 +1,11 @@
 package org.editor;
 
+import com.vlsolutions.swing.docking.DockKey;
+import com.vlsolutions.swing.docking.Dockable;
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,6 +15,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.text.BadLocationException;
+import org.editor.fs.FileFilter;
+import org.editor.fs.FilePersistance;
 import org.editor.icons.Icons;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.BasicCompletion;
@@ -20,6 +27,8 @@ import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.CodeTemplateManager;
 import org.fife.ui.rsyntaxtextarea.FileLocation;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaHighlighter;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.TextEditorPane;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.templates.CodeTemplate;
@@ -30,13 +39,19 @@ import org.fife.ui.rtextarea.RTextScrollPane;
  *
  * @author hexaredecimal
  */
-public class CodeEditor extends JPanel {
+public class CodeEditor extends JPanel implements Dockable {
 
 	public TextEditorPane textArea;
 	public Path file = null;
 	private boolean isTmp;
+	private DockKey key; // = new DockKey("textEditor");
+	public int tabIndex =0;
 
 	public CodeEditor() {
+		this(null);
+	}
+
+	public CodeEditor(Path path) {
 		super(new BorderLayout());
 		textArea = new TextEditorPane();
 		textArea.setCodeFoldingEnabled(true);
@@ -61,17 +76,55 @@ public class CodeEditor extends JPanel {
 		gutter.setBookmarkingEnabled(true);
 		gutter.setBookmarkIcon(Icons.getIcon("bookmark"));
 
+		var self = this;
+		textArea.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				EditorWindow.setSelectedEditor(self);
+				getCursorPositionText(self);
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+			}
+		});
+
+		this.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				EditorWindow.setSelectedEditor(self);
+				getCursorPositionText(self);
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+			}
+		});
+
 		try {
-			var fp = File.createTempFile("piccasso-", "-tmp");
-			file = fp.toPath();
-			fp.deleteOnExit();
-			isTmp = true;
+			String tip = "Source code editor"; 
+			var icon = Icons.getIcon("code-file");
+			if (path == null) {
+				var fp = File.createTempFile("piccasso-", "-tmp");
+				
+				key = new DockKey(fp.getName(), fp.getName(), tip, icon);
+				file = fp.toPath();
+				isTmp = true;
+				fp.deleteOnExit();
+			} else {
+				key = new DockKey(path.toFile().getName(), path.toFile().getName(), tip, icon);
+				file = path;
+			}
+			key.setCloseEnabled(true);
+			key.setAutoHideEnabled(true);
+			this.putClientProperty("dockKey", key);
 		} catch (IOException ex) {
 			Logger.getLogger(CodeEditor.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
 		textArea
 						.addCaretListener(e -> {
+							EditorWindow.setSelectedEditor(this);
 							getCursorPositionText(this);
 						});
 
@@ -85,6 +138,8 @@ public class CodeEditor extends JPanel {
 
 		try {
 			textArea.save();
+			FilePersistance.persistFile(file);
+			EditorWindow.setSeletedTabTitle(file.toFile().getName());
 			EditorWindow.current_file.setText("Written to " + file);
 			return true;
 		} catch (IOException e) {
@@ -102,6 +157,9 @@ public class CodeEditor extends JPanel {
 
 	public boolean saveFileAs() {
 		var fileChooser = new JFileChooser(".");
+		fileChooser.setFileFilter(FileFilter.mdFilter);
+		fileChooser.setFileFilter(FileFilter.picsFilter);
+
 		int status = fileChooser.showSaveDialog(EditorWindow.win);
 		if (status != JFileChooser.APPROVE_OPTION) {
 			EditorWindow.current_file.setText("Save cancelled");
@@ -113,8 +171,11 @@ public class CodeEditor extends JPanel {
 			textArea.saveAs(loc);
 			textArea.load(loc);
 			file = path.toPath();
+			FilePersistance.persistFile(file);
 			getCursorPositionText(this);
+			EditorWindow.setSeletedTabTitle(path.getName());
 			EditorWindow.current_file.setText("Written to " + path);
+			isTmp = false;
 			return true;
 		} catch (IOException ex) {
 			JOptionPane.showMessageDialog(EditorWindow.win, ex);
@@ -191,5 +252,37 @@ public class CodeEditor extends JPanel {
 			var ct = new StaticCodeTemplate(template[0], template[1], null);
 			ctm.addTemplate(ct);
 		}
+	}
+
+	public boolean load(File fp) {
+		setIsTmp(false);
+		var loc = FileLocation.create(fp);
+		FilePersistance.persistFile(fp.toPath());
+		try {
+			textArea.load(loc);
+
+			if (fp.getName().endsWith(".pics")) {
+				textArea.setSyntaxEditingStyle("text/piccode");
+			} else if (fp.getName().endsWith(".md")) {
+				textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_MARKDOWN);
+			} else {
+				textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
+			}
+
+			return true;
+		} catch (IOException ex) {
+			JOptionPane.showMessageDialog(EditorWindow.win, ex);
+			return false;
+		}
+	}
+
+	@Override
+	public DockKey getDockKey() {
+		return key;
+	}
+
+	@Override
+	public Component getComponent() {
+		return this;
 	}
 }
