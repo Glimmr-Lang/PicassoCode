@@ -57,6 +57,7 @@ public class PiccodeScriptTokenMaker extends AbstractTokenMaker {
 			case PiccodeScriptLexer.IMPORT:
 			case PiccodeScriptLexer.IS:
 			case PiccodeScriptLexer.MODULE:
+			case PiccodeScriptLexer.DO:
 				return Token.RESERVED_WORD;
 			case PiccodeScriptLexer.STRING:
 				return Token.LITERAL_STRING_DOUBLE_QUOTE;
@@ -88,7 +89,7 @@ public class PiccodeScriptTokenMaker extends AbstractTokenMaker {
 	@Override
 	public TokenMap getWordsToHighlight() {
 		TokenMap tokenMap = new TokenMap();
-		var keywords = List.of("function", "import", "let", "when", "is", "if", "else", "module");
+		var keywords = List.of("function", "import", "let", "when", "is", "if", "else", "module", "do");
 		for (var kw : keywords) {
 			tokenMap.put(kw, Token.RESERVED_WORD);
 		}
