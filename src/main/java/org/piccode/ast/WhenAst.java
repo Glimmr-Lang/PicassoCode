@@ -1,6 +1,7 @@
 package org.piccode.ast;
 
 import java.util.List;
+import org.piccode.rt.PiccodeException;
 import org.piccode.rt.PiccodeValue;
 
 /**
@@ -35,7 +36,33 @@ public class WhenAst implements Ast {
 
 	@Override
 	public PiccodeValue execute() {
-		throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+		var cond_value = cond.execute();
+
+		for (var match_case: cases) {
+				if (isMatching(match_case.match, cond_value)) {
+					return match_case.value.execute();
+				}
+		}
+
+		if (else_case == null) {
+			throw new PiccodeException("Inexhaustive when expression has hit an unexpected state where no pattern was matched: when " + cond + " { ...");
+		}
+		
+		return else_case.execute();
 	}
-	
+
+	private boolean isMatching(List<Ast> match, PiccodeValue cond_value) {
+		for (var node: match) {
+			if (node instanceof IdentifierAst id) {
+				continue; // TODO: Add Ids to the symtable
+			}
+
+			var value = node.execute();
+			if (node.equals(cond_value)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

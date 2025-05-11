@@ -295,6 +295,10 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 			return visitId(expr.ID());
 		}
 
+		if (expr.do_expr() != null) {
+			return visitDo_expr(expr.do_expr());
+		}
+
 		if (expr.LPAREN() != null && expr.RPAREN() != null && expr.expr() == null) {
 			return new UnitAst();
 		}
@@ -327,6 +331,21 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 		return null;
 	}
 
+	@Override
+	public Ast visitDo_expr(Do_exprContext ctx) {
+		var nodes = new ArrayList<Ast>();
+		var exprs = ctx.expr();
+
+		if (exprs.isEmpty()) return new UnitAst();
+		
+		for (var e: exprs) {
+			var expr = visitExpr(e);
+			nodes.add(expr);
+		}
+
+		return new DoExprAst(nodes);
+	}
+	
 	@Override
 	public Ast visitIf_expr(If_exprContext ctx) {
 		var cond = visitExpr(ctx.expr(0));
