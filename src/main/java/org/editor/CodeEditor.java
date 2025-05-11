@@ -3,8 +3,11 @@ package org.editor;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.text.BadLocationException;
 import org.editor.icons.Icons;
@@ -15,12 +18,13 @@ import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.CodeTemplateManager;
+import org.fife.ui.rsyntaxtextarea.FileLocation;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.TextEditorPane;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.templates.CodeTemplate;
 import org.fife.ui.rsyntaxtextarea.templates.StaticCodeTemplate;
 import org.fife.ui.rtextarea.RTextScrollPane;
-
 
 /**
  *
@@ -28,14 +32,15 @@ import org.fife.ui.rtextarea.RTextScrollPane;
  */
 public class CodeEditor extends JPanel {
 
-	public RSyntaxTextArea textArea;
-	public File file = null;
-	
+	public TextEditorPane textArea;
+	public Path file = null;
+	private boolean isTmp;
+
 	public CodeEditor() {
 		super(new BorderLayout());
-		textArea = new RSyntaxTextArea();
+		textArea = new TextEditorPane();
 		textArea.setCodeFoldingEnabled(true);
-		
+
 		var atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
 		atmf.putMapping("text/piccode", "org.piccode.tokenmaker.PiccodeScriptTokenMaker");
 		textArea.setSyntaxEditingStyle("text/piccode");
@@ -46,41 +51,87 @@ public class CodeEditor extends JPanel {
 		var provider = createCompletionProvider();
 		AutoCompletion ac = new AutoCompletion(provider);
 		ac.install(textArea);
-		
+
 		var sp = new RTextScrollPane(textArea);
 		sp.setLineNumbersEnabled(true); // Line numbers are enabled by default
 		sp.setFoldIndicatorEnabled(true);
 		sp.setIconRowHeaderEnabled(true);
 
-
-		
 		var gutter = sp.getGutter();
 		gutter.setBookmarkingEnabled(true);
 		gutter.setBookmarkIcon(Icons.getIcon("bookmark"));
 
 		try {
-			file = File.createTempFile("piccasso-", "-tmp");
-			file.deleteOnExit();
+			var fp = File.createTempFile("piccasso-", "-tmp");
+			file = fp.toPath();
+			fp.deleteOnExit();
+			isTmp = true;
 		} catch (IOException ex) {
 			Logger.getLogger(CodeEditor.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
 		textArea
-		.addCaretListener(e -> {
-			getCursorPositionText(textArea);
-		});
-		
+						.addCaretListener(e -> {
+							getCursorPositionText(this);
+						});
+
 		this.add(sp, BorderLayout.CENTER);
 	}
-	
-	public static void getCursorPositionText(RSyntaxTextArea textArea) {
+
+	public boolean saveFile() {
+		if (isTmp) {
+			return saveFileAs();
+		}
+
 		try {
+			textArea.save();
+			EditorWindow.current_file.setText("Written to " + file);
+			return true;
+		} catch (IOException e) {
+			return saveFileAs();
+		}
+	}
+
+	public boolean isIsTmp() {
+		return isTmp;
+	}
+
+	public void setIsTmp(boolean isTmp) {
+		this.isTmp = isTmp;
+	}
+
+	public boolean saveFileAs() {
+		var fileChooser = new JFileChooser(".");
+		int status = fileChooser.showSaveDialog(EditorWindow.win);
+		if (status != JFileChooser.APPROVE_OPTION) {
+			EditorWindow.current_file.setText("Save cancelled");
+			return false;
+		}
+		var path = fileChooser.getSelectedFile();
+		var loc = FileLocation.create(path);
+		try {
+			textArea.saveAs(loc);
+			textArea.load(loc);
+			file = path.toPath();
+			getCursorPositionText(this);
+			EditorWindow.current_file.setText("Written to " + path);
+			return true;
+		} catch (IOException ex) {
+			JOptionPane.showMessageDialog(EditorWindow.win, ex);
+			return false;
+		}
+	}
+
+	public static void getCursorPositionText(CodeEditor ed) {
+		try {
+			var textArea = ed.textArea;
 			int caret = textArea.getCaretPosition();
 			int line = textArea.getLineOfOffset(caret);
 			int col = caret - textArea.getLineStartOffset(line);
 			int lines = textArea.getLineCount();
 			var ln_str = "Ln " + (line + 1) + ", Col " + (col + 1);
 			var perc = (line / (double) lines) * 100;
+			EditorWindow.current_file.setText(ed.file.toString());
 			EditorWindow.line_info.setText(ln_str);
 			var perc_str = perc == 100 ? "Bottom" : perc == 0 ? "Top" : String.format("%.0f%%", perc);
 			EditorWindow.line_perc.setText(perc_str);
@@ -94,6 +145,10 @@ public class CodeEditor extends JPanel {
 		}
 	}
 
+	public String filePathTruncated() {
+		var path = file.toFile().getName();
+		return (path.length() > 25) ? path + "..." : path;
+	}
 
 	private CompletionProvider createCompletionProvider() {
 
@@ -109,7 +164,6 @@ public class CodeEditor extends JPanel {
 		provider.addCompletion(new BasicCompletion(provider, "when"));
 		provider.addCompletion(new BasicCompletion(provider, "is"));
 		provider.addCompletion(new BasicCompletion(provider, "module"));
-
 
 		provider.addCompletion(new ShorthandCompletion(provider, "mod", "module ModuleName {}"));
 		provider.addCompletion(new ShorthandCompletion(provider, "ifelse", "if true { } else { }"));
@@ -132,9 +186,8 @@ public class CodeEditor extends JPanel {
 			{"drawPolygon", "drawPolygon(xarray, yarray)"},
 			{"drawPolyline", "drawPolyline(xarray, yarray)"},
 			{"drawImage", "drawImage(id, x, y, w, h)"},
-			{"color", "color(r, g, b)"},
-		};
-		for (var template: templates) {
+			{"color", "color(r, g, b)"},};
+		for (var template : templates) {
 			var ct = new StaticCodeTemplate(template[0], template[1], null);
 			ctm.addTemplate(ct);
 		}

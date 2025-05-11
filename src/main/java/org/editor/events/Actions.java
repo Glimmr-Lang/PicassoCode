@@ -145,7 +145,7 @@ public class Actions {
 										.icon("file")
 										.tooltip("Open a file from the filesystem")
 										.shortcut("control O")
-										.handler(e -> It.todo())
+										.handler(MenuEvents::openFile)
 										.build();
 
 		closeFileAction
@@ -153,7 +153,7 @@ public class Actions {
 										.create("Close File")
 										.icon("close")
 										.tooltip("Close the current file")
-										.handler(e -> It.todo())
+										.handler(MenuEvents::closeFile)
 										.build();
 
 		saveAction
@@ -162,7 +162,7 @@ public class Actions {
 										.icon("save")
 										.tooltip("Save")
 										.shortcut("control S")
-										.handler(e -> It.todo())
+										.handler(MenuEvents::saveFile)
 										.build();
 
 		saveAsAction
@@ -170,7 +170,7 @@ public class Actions {
 										.create("Save As...")
 										.icon("save-as")
 										.tooltip("Save")
-										.handler(e -> It.todo())
+										.handler(MenuEvents::saveFileAs)
 										.build();
 
 		saveAllAction
@@ -188,7 +188,7 @@ public class Actions {
 										.icon("logout")
 										.shortcut("control Q")
 										.tooltip("Quit")
-										.handler(e -> System.exit(0))
+										.handler(MenuEvents::quit)
 										.build();
 
 		undoAction = AppAction

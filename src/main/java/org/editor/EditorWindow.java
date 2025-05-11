@@ -13,7 +13,10 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -35,6 +38,7 @@ import javax.swing.UIManager;
 import org.editor.events.Actions;
 import org.editor.icons.Icons;
 import org.editor.menu.Menus;
+import org.editor.util.It;
 
 import org.fife.rsta.ui.CollapsibleSectionPanel;
 //import org.fife.rsta.ui.DocumentMap;
@@ -213,7 +217,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		var file = getSelectedEditor().file;
 
 		if (file != null) {
-			current_file.setText(file.getName());
+			current_file.setText(file.toString());
 		} else {
 			current_file.setText("[NONE]");
 		}
@@ -234,7 +238,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 			if (ed == null) {
 				return;
 			}
-			CodeEditor.getCursorPositionText(ed.textArea);
+			CodeEditor.getCursorPositionText(ed);
 		});
 
 		this.setIconImage(Icons.getIcon("appicon").getImage());
@@ -261,15 +265,34 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		}
 		tabEditors.put(index, editor);
 		tabs.addTab("", editor);
-		tabs.setTabComponentAt(tabs.getTabCount() - 1, makeTabHeader(tabs, editor.file == null ? "Tab " + index : editor.file.getName()));
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, makeTabHeader(tabs, editor.file == null ? "Tab " + index : editor.filePathTruncated()));
 		if (index >= 0) {
 			addPlusTab(tabs);
 		}
+		tabs.setSelectedIndex(index);
+	}
+
+	public static void addTab(Path path, Void e) {
+		var index = tabs.getTabCount();
+		var editor = new CodeEditor();
+		editor.file = path;
+		if (index >= 1) {
+			tabs.remove(index - 1);
+			index = tabs.getTabCount();
+		}
+		tabEditors.put(index, editor);
+		tabs.addTab("", editor);
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, makeTabHeader(tabs, editor.file == null ? "Tab " + index : editor.filePathTruncated()));
+		if (index >= 0) {
+			addPlusTab(tabs);
+		}
+		tabs.setSelectedIndex(index);
 	}
 
 	public static CodeEditor getSelectedEditor() {
 		int index = tabs.getSelectedIndex();
-		return tabEditors.get(index);
+		var ed = tabEditors.get(index);
+		return ed;
 	}
 
 	private static void addPlusTab(JTabbedPane tabs) {
@@ -305,8 +328,8 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		closeButton.addActionListener(e -> {
 			int index = tabs.indexOfTabComponent(tabHeader);
 			if (index != -1) {
-				tabEditors.remove(index);
-				tabs.remove(index);
+				var ed = tabEditors.get(index);
+				removeIfDirty(index, ed);
 			}
 		});
 
@@ -322,21 +345,54 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		}
 
 		int index = tabs.getSelectedIndex();
-		tabEditors.remove(index);
-		tabs.remove(index);
+		var ed = tabEditors.get(index);
+		removeIfDirty(index, ed);
 	}
 
 	public static void removeAllTabs() {
 		int count = tabs.getTabCount();
-	
 		for (int index = 0; index < count - 1; index++) {
-			tabEditors.remove(index);
-			tabs.remove(index);
+			var ed = tabEditors.get(index);
+			if (ed == null) {
+				continue;
+			}
+			removeIfDirty(index, ed);
 		}
 		addTab(null);
 		removeTab();
 	}
 
+	public static int tabsCount() {
+		return tabs.getTabCount();
+	}
+	
+	private static void removeIfDirty(Integer index, CodeEditor ed) {
+		if (ed.textArea.isDirty()) {
+			int result = JOptionPane.showConfirmDialog(win, "File " + ed.filePathTruncated() + " is modified. Save?");
+			if (result == JOptionPane.OK_OPTION) {
+				if (!ed.saveFile()) {
+					return;
+				}
+			}
+		}
+		tabEditors.remove(index);
+		tabs.remove(index);
+		int last = migrateIndexes();
+		tabs.setSelectedIndex(last);
+	}
+
+	private static int migrateIndexes() {
+		int index = 0;
+		tabEditors.clear();
+		for (int i = 0; i < tabs.getTabCount(); i++) {
+			var comp = tabs.getComponentAt(i);
+			if (comp instanceof CodeEditor ed) {
+				tabEditors.put(i, ed);
+				index = Math.max(index, i);
+			}
+		}
+		return index;
+	}
 
 	private JPanel makeCoolbar(int height, Action... actions) {
 		JPanel cool_bar = new JPanel(new BorderLayout());

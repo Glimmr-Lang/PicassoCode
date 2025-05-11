@@ -2,11 +2,20 @@ package org.editor.events;
 
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
+import org.editor.CodeEditor;
 import org.editor.EditorWindow;
 import org.editor.dialogs.AboutDialog;
 import org.fife.rsta.ui.GoToDialog;
+import org.fife.ui.rsyntaxtextarea.FileLocation;
 
 /**
  *
@@ -66,5 +75,51 @@ public class MenuEvents {
 	
 	public static void closeAllTabs(ActionEvent e) {
 		EditorWindow.removeAllTabs();
+	}
+
+	static void openFile(ActionEvent e) {
+		// TODO: Use the System object to get the current pwd
+		var fileChooser = new JFileChooser(".");
+		int status = fileChooser.showOpenDialog(EditorWindow.win);
+		if (status != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+
+		var fp = fileChooser.getSelectedFile();
+		var path = fp.toPath();
+		try {
+			EditorWindow.addTab(path, null);
+			var loc = FileLocation.create(fp);
+			var ed = EditorWindow.getSelectedEditor();
+			ed.setIsTmp(false);
+			ed.textArea.load(loc);
+		} catch (IOException ex) {
+			JOptionPane.showMessageDialog(EditorWindow.win, ex);
+		}
+	}
+
+	static void saveFile(ActionEvent e) {
+			if (EditorWindow.tabsCount() == 1) {
+				return;
+			}
+			var ed = EditorWindow.getSelectedEditor();
+			ed.saveFile();
+	}
+	
+	static void saveFileAs(ActionEvent e) {
+			if (EditorWindow.tabsCount() == 1) {
+				return;
+			}
+			var ed = EditorWindow.getSelectedEditor();
+			ed.saveFileAs();
+	}
+
+	static void closeFile(ActionEvent e) {
+		closeTab(e);
+	}
+
+	static void quit(ActionEvent e) {
+		closeAllTabs(e);
+		System.exit(0);
 	}
 }
