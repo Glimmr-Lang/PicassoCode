@@ -2,6 +2,7 @@
 package org.piccode.rt;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -40,5 +41,27 @@ public class PiccodeArray implements PiccodeValue {
 	@Override
 	public Object raw() {
 		return nodes.toArray();
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 23 * hash + Objects.hashCode(this.nodes);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final PiccodeArray other = (PiccodeArray) obj;
+		return Objects.equals(this.nodes, other.nodes);
 	}
 }
