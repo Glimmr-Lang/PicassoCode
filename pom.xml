@@ -42,7 +42,13 @@
 			<artifactId>rstaui</artifactId>
 			<version>3.3.1</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.bidib.jbidib.com.vldocking</groupId>
+			<artifactId>vldocking</artifactId>
+			<version>3.0.10</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
