@@ -1,9 +1,9 @@
 # Coding Standards
 
-Below are a set of rule that are expected to be followed and adhered to when writing code for the PiccasoCode project. 
+Below are a set of rules that are expected to be followed and adhered to when writing code for the PiccasoCode project. 
 This is not to be an authoritarian but it is meant to allow your code to look like my code and mine to look like yours. 
 This simple approach allows anyone to debug anything when it goes wrong because the code looks the same. This also allows
-us to write the same file and maintain an common standard. 
+us to write the same file and maintain a common standard. 
 
 ### Rules. 
 1. Keep it simple. Methods/Functions should only do 1 thing and do it very well.
