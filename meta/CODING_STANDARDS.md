@@ -62,6 +62,7 @@ var items = new ArrayList<String>(); // Type ArrayList<String>
 
 5. Always do `git pull` before doing any work.
 
+6. Use 2 space indenting instead of tabs (You may choose to ignore this one. If you want to try 2 space indent change it in your settings")
 
 
 
