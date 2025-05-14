@@ -1,5 +1,7 @@
 package org.editor;
 
+import com.vlsolutions.swing.docking.DockKey;
+import com.vlsolutions.swing.docking.Dockable;
 import org.editor.events.Actions;
 import java.awt.BorderLayout;
 import java.awt.Color;

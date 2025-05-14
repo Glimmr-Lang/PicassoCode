@@ -1,8 +1,11 @@
 package org.editor;
 
+import com.vlsolutions.swing.docking.DockKey;
+import com.vlsolutions.swing.docking.Dockable;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -54,6 +57,7 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 	private Point selectionEnd = null;
 
 	private static CanvasFrame _the = null;
+	private DockKey key = new DockKey("canvas");
 
 	private CanvasFrame() {
 		super(new BorderLayout());
@@ -319,5 +323,4 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 			g2.fillOval(mouseX - radius, mouseY - radius, radius * 2, radius * 2);
 		}
 	}
-
 }

@@ -179,7 +179,7 @@ public class Actions {
 										.icon("save-all")
 										.tooltip("Save All")
 										.shortcut("control shift S")
-										.handler(e -> It.todo())
+										.handler(MenuEvents::saveAllFiles)
 										.build();
 
 		exitAction
