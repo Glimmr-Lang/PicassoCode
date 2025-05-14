@@ -1,3 +1,4 @@
 target/
 .mvn
 mvnw*
+docs/.obsidian
