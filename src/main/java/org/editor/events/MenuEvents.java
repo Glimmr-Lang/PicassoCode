@@ -71,7 +71,7 @@ public class MenuEvents {
 	}
 
 	public static void aboutDialog(ActionEvent e) {
-		var  _ = new AboutDialog(EditorWindow.win);
+		new AboutDialog(EditorWindow.win);
 	}
 
 	public static void closeTab(ActionEvent e) {

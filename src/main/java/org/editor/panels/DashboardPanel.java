@@ -212,7 +212,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 		};
 
 		rFilesList.setCellRenderer(new ListItemRenderer());
-		var _ = new ListAction(rFilesList, displayAction);
+		new ListAction(rFilesList, displayAction);
 	}
 
 	private static DefaultListModel<ListItem> filesModel = new DefaultListModel<>();
