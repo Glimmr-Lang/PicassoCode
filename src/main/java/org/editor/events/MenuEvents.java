@@ -33,7 +33,12 @@ public class MenuEvents {
 			replaceDialog.setVisible(false);
 		}
 		GoToDialog dialog = new GoToDialog(EditorWindow.win);
-		var textArea = EditorWindow.getSelectedEditor().textArea;
+
+		var ed = EditorWindow.getSelectedEditor();
+		if (ed == null) {
+			return;
+		}
+    var textArea = ed.textArea;
 		dialog.setMaxLineNumberAllowed(textArea.getLineCount());
 		dialog.setVisible(true);
 		int line = dialog.getLineNumber();
@@ -94,10 +99,13 @@ public class MenuEvents {
 	}
 
 	static void saveFile(ActionEvent e) {
-		if (EditorWindow.tabsCount() == 1) {
+		if (EditorWindow.tabsCount() == 0) {
 			return;
 		}
 		var ed = EditorWindow.getSelectedEditor();
+		if (ed == null) {
+			return;
+		}
 		ed.saveFile();
 	}
 
@@ -106,6 +114,9 @@ public class MenuEvents {
 			return;
 		}
 		var ed = EditorWindow.getSelectedEditor();
+		if (ed == null) {
+			return;
+		}
 		ed.saveFileAs();
 	}
 

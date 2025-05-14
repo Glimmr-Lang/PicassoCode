@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package org.editor.panels;
 
 import java.awt.Component;
@@ -197,6 +193,7 @@ public class DashboardPanel extends javax.swing.JPanel {
   }//GEN-LAST:event_jButton1ActionPerformed
 
 	private void loadPersistedState() {
+		filesModel.clear();
 		FilePersistance
 						.getRecentFiles()
 						.forEach(item -> {

@@ -7,9 +7,14 @@ package org.editor.events;
 import java.awt.event.*;
 import javax.swing.*;
 
-
-// Reference: https://stackoverflow.com/questions/4344682/double-click-event-on-jlist-element
-public class ListAction implements MouseListener {
+/**
+ * Adapted from Stack Overflow answer by [Sandro Marques]
+ * https://stackoverflow.com/a/4344682 Licensed under CC BY-SA 4.0
+ * (https://creativecommons.org/licenses/by-sa/4.0/)
+ * 
+ * URL: https://stackoverflow.com/questions/4344682/double-click-event-on-jlist-element
+ */
+public final class ListAction implements MouseListener {
 
 	private static final KeyStroke ENTER = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
 
@@ -37,8 +42,8 @@ public class ListAction implements MouseListener {
 		//  Add the Action to the ActionMap
 		setAction(action);
 
-		//  Handle mouse double click
-		list.addMouseListener(this);
+		var self = this; // Java wont shut up about "leaking "this" in constructor"
+		list.addMouseListener(self);
 	}
 
 	/*
@@ -51,6 +56,9 @@ public class ListAction implements MouseListener {
 	//  Implement MouseListener interface
 	public void mouseClicked(MouseEvent e) {
 		if (e.getClickCount() == 2) {
+			if (list.getSelectedIndex() == -1)
+				return;
+
 			Action action = list.getActionMap().get(keyStroke);
 
 			if (action != null) {

@@ -12,13 +12,21 @@ import org.piccode.backend.Compiler;
 public class AccessEvents {
 
 	public static void compileAndRender(ActionEvent e) {
-		var code = EditorWindow.getSelectedEditor().textArea.getText();
+		var ed = EditorWindow.getSelectedEditor();
+		if (ed == null) {
+			return;
+		}
+    var code  = ed.textArea.getText();
 		AccessFrame.writeSuccess("Compilation started: ");
 		Compiler.compile(code, true);
 	}
 	
 	public static void compile(ActionEvent e) {
-		var code = EditorWindow.getSelectedEditor().textArea.getText();
+		var ed = EditorWindow.getSelectedEditor();
+		if (ed == null) {
+			return;
+		}
+    var code  = ed.textArea.getText();
 		AccessFrame.writeSuccess("Compilation started: ");
 		Compiler.compile(code, false);
 	}
