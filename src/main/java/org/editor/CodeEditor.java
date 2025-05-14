@@ -157,7 +157,8 @@ public class CodeEditor extends JPanel implements Dockable {
 
 	public boolean saveFileAs() {
 		var fileChooser = new JFileChooser(".");
-		fileChooser.setFileFilter(FileFilter.mdFilter);
+		fileChooser.addChoosableFileFilter(FileFilter.mdFilter);
+		fileChooser.addChoosableFileFilter(FileFilter.picsFilter);
 		fileChooser.setFileFilter(FileFilter.picsFilter);
 
 		int status = fileChooser.showSaveDialog(EditorWindow.win);

@@ -2,15 +2,10 @@ package org.editor;
 
 import org.editor.panels.DashboardPanel;
 import com.formdev.flatlaf.FlatLightLaf;
-import com.vlsolutions.swing.docking.DockKey;
-import com.vlsolutions.swing.docking.DockView;
 import com.vlsolutions.swing.docking.Dockable;
-import com.vlsolutions.swing.docking.DockableState;
 import com.vlsolutions.swing.docking.DockingConstants;
 import com.vlsolutions.swing.docking.DockingDesktop;
 import com.vlsolutions.swing.docking.DockingPreferences;
-import com.vlsolutions.swing.docking.event.DockableStateWillChangeEvent;
-import com.vlsolutions.swing.docking.event.DockableStateWillChangeListener;
 import com.vlsolutions.swing.docking.ui.DockingUISettings;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -36,7 +31,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
@@ -113,7 +107,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 			if (current == null) {
 				return;
 			}
-			
+
 			if (current.getDockable() instanceof CodeEditor ed) {
 				if (event.getFutureState().isClosed()) {
 					if (removeIfDirty(ed.tabIndex, ed) == false) {
@@ -123,7 +117,6 @@ public final class EditorWindow extends JFrame implements SearchListener {
 			}
 		});
 
-		JPanel main_panel = new JPanel(new BorderLayout());
 		//main_panel.add(desk, BorderLayout.CENTER);
 
 		JToolBar tool_bar = makeToolBar(
@@ -140,7 +133,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 						null,
 						Actions.exitAction
 		);
-		main_panel.add(tool_bar, BorderLayout.PAGE_START);
+		// main_panel.add(tool_bar, BorderLayout.PAGE_START);
 
 		current_file = new JLabel("[NONE]");
 		line_info = new JLabel();
@@ -153,7 +146,6 @@ public final class EditorWindow extends JFrame implements SearchListener {
 						new Component[]{current_file, null},
 						new Component[]{line_info, line_perc, seekBar, null, charset}
 		);
-		main_panel.add(bottom_bar, BorderLayout.PAGE_END);
 
 		Action[] app_actions = {
 			Actions.showFileTreeAction,
@@ -211,7 +203,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		dashboard = new DockablePanel(new BorderLayout(), "Piccasso DashBoard", "DashBoard", "Home page", "file");
 		dashboard.add(new JScrollPane(new DashboardPanel()), BorderLayout.CENTER);
 		getContentPane().add(access_panel, BorderLayout.EAST);
-		
+
 		desk.addDockable(dashboard);
 		desk.addDockable(cool_bar);
 		desk.setAutoHide(cool_bar, true);
@@ -338,17 +330,17 @@ public final class EditorWindow extends JFrame implements SearchListener {
 			return;
 		}
 
-		CodeEditor selected = getSelectedEditor();
-		if (selected == null) {
+		var focused = getSelectedEditor();
+		if (focused == null) {
 			return;
 		}
 
-		Integer index = getEditorIndex(selected);
+		Integer index = getEditorIndex(focused);
 		if (index == null) {
 			return;
 		}
 
-		removeIfDirty(index, selected);
+		removeIfDirty(index, focused);
 	}
 
 	public static void removeAllTabs() {
@@ -372,12 +364,12 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		win.desk.remove((Dockable) ed); // Actual removal from docking layout
 		tabEditors.remove(index);
 		migrateIndexes();
-		
+
 		return true;
 	}
 
 	private static boolean isDocked(Dockable d) {
-		for (var state: win.desk.getDockables()) {
+		for (var state : win.desk.getDockables()) {
 			var dockable = state.getDockable();
 			if (dockable == d || dockable.equals(d)) {
 				return true;
@@ -385,7 +377,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		}
 		return false;
 	}
-	
+
 	private static Integer getEditorIndex(CodeEditor ed) {
 		for (var entry : tabEditors.entrySet()) {
 			if (entry.getValue() == ed) {
@@ -493,7 +485,12 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		SearchEvent.Type type = se.getType();
 		SearchContext context = se.getSearchContext();
 		SearchResult result;
-		var textArea = getSelectedEditor().textArea;
+		var ed = getSelectedEditor();
+		if (ed == null) {
+			return;
+		}
+		
+		var textArea = ed.textArea;
 
 		switch (type) {
 			default: // Prevent FindBugs warning later
@@ -522,7 +519,11 @@ public final class EditorWindow extends JFrame implements SearchListener {
 
 	@Override
 	public String getSelectedText() {
-		return getSelectedEditor().textArea.getSelectedText();
+		var ed = getSelectedEditor();
+		if (ed == null) {
+			return "";
+		}
+		return ed.textArea.getSelectedText();
 	}
 
 	private void customizeDock() {
@@ -530,7 +531,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		UIManager.put("DockTabbedPane.close", (Icon) Icons.getIcon("close"));
 		UIManager.put("DockViewTitleBar.isFloatButtonDisplayed", true);
 
-		var font = (Font)UIManager.get("DockViewTitleBar.titleFont");
+		var font = (Font) UIManager.get("DockViewTitleBar.titleFont");
 		UIManager.put("DockViewTitleBar.titleFont", new Font(font.getName(), font.getStyle(), 11));
 	}
 
