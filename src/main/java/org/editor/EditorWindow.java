@@ -82,7 +82,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 
 	public EditorWindow() {
 		super("Piccode - DashBoard");
-		var  _ =new CodeEditor();
+		new CodeEditor();
 		root = getRootPane();
 		Icons.loadIcons();
 		tabEditors = new HashMap<>();
