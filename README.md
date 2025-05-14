@@ -12,6 +12,8 @@
  </tr>
 </table>
 
+[![Java CI with Maven](https://github.com/Glimmr-Lang/PicassoCode/actions/workflows/maven.yml/badge.svg)](https://github.com/Glimmr-Lang/PicassoCode/actions/workflows/maven.yml)
+
 ## About
 Piccasso code is an image editor that uses code to create/edit an image. This allows powerful designs to be created with ease and
 automation. The editor uses *glimr* as the scripting language for writing the image editing code. 
