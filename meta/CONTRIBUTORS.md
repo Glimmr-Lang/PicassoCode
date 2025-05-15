@@ -14,6 +14,7 @@ I would like to thank everyone for taking their time and contibuting to the proj
 
 #### Project Contributors
 - [MlaumeCasa](github.com/MlaumeCasa/PostAnalyzer)
++ [MlaumeCasa](https://github.com/MlaumeCasa/PostAnalyzer)
 
 
 
