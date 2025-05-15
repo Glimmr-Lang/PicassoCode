@@ -92,6 +92,7 @@ public class Icons {
 			"pointer",
 			"system-task",
 			"time-machine",
+      "terminal",
 			"tools",
 			"undo",
 			"visual-effects",
@@ -110,7 +111,7 @@ public class Icons {
 			}
 
 			if (icn == null) {
-				map.put(icon, null);
+				System.err.println("Icon " + icon + " loaded successfully [" + path + "]");
 				continue;
 			}
 			var _icon = new ImageIcon(icn);

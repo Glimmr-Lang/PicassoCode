@@ -132,4 +132,16 @@ public class MenuEvents {
 		closeAllTabs(e);
 		System.exit(0);
 	}
+
+  static void showOutputFrame(ActionEvent e) {
+   if (EditorWindow.outputFrame == null) {
+      return;
+    }
+    
+    if (EditorWindow.isDocked(EditorWindow.outputFrame)) {
+      return ;
+    }
+    
+    EditorWindow.dock(EditorWindow.outputFrame);
+  }
 }

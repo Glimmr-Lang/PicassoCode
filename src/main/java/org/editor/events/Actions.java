@@ -65,7 +65,8 @@ public class Actions {
 					navRight,
 					findAction,
 					gotoLine,
-					replaceAction;
+					replaceAction,
+          showOutputFrame;
 
 	public static void loadActions() {
 		compileAction
@@ -455,6 +456,13 @@ public class Actions {
 						.tooltip("Toogle the right view")
 						.handler(e -> It.todo())
 						.build();
-
+    showOutputFrame
+      = AppAction
+      .create("Open Code Editor")
+      .icon("terminal")
+      .shortcut("control T")
+      .handler(MenuEvents::showOutputFrame)
+      .build();
+    
 	}
 }

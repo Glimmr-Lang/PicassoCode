@@ -44,6 +44,10 @@ import org.fife.rsta.ui.CollapsibleSectionPanel;
 import org.fife.rsta.ui.search.FindDialog;
 import org.fife.rsta.ui.search.ReplaceDialog;
 import org.fife.rsta.ui.search.SearchEvent;
+import static org.fife.rsta.ui.search.SearchEvent.Type.FIND;
+import static org.fife.rsta.ui.search.SearchEvent.Type.MARK_ALL;
+import static org.fife.rsta.ui.search.SearchEvent.Type.REPLACE;
+import static org.fife.rsta.ui.search.SearchEvent.Type.REPLACE_ALL;
 import org.fife.rsta.ui.search.SearchListener;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
@@ -55,484 +59,497 @@ import org.fife.ui.rtextarea.SearchResult;
  */
 public final class EditorWindow extends JFrame implements SearchListener {
 
-	private static JTabbedPane tabs = new JTabbedPane();
-	private static HashMap<Integer, CodeEditor> tabEditors;
-	public static EditorWindow win = null;
-	public static JLabel current_file = new JLabel();
-	public static JLabel line_info = new JLabel();
-	public static JLabel line_perc = new JLabel();
-	public static JLabel charset = new JLabel();
-	public static JProgressBar seekBar = new JProgressBar();
-	private DockablePanel dashboard;
-
-	private CollapsibleSectionPanel csp;
-	public static FindDialog findDialog;
-	public static ReplaceDialog replaceDialog;
-	private DockingDesktop desk = new DockingDesktop();
-	private static CodeEditor selected = null;
-
-	public static EditorWindow the() {
-		if (win == null) {
-			win = new EditorWindow();
-		}
-		return win;
-	}
-
-	public static JRootPane root = null;
-
-	public EditorWindow() {
-		super("Piccode - DashBoard");
-		new CodeEditor();
-		root = getRootPane();
-		Icons.loadIcons();
-		tabEditors = new HashMap<>();
-		CodeEditor.createTemplateManager();
-		initSearchDialogs();
-
-		DockingUISettings.getInstance().installUI();
-		customizeDock();
-
-		try {
-			UIManager.setLookAndFeel(new FlatLightLaf());
-		} catch (Exception ex) {
-			System.err.println("Failed to initialize LaF");
-		}
-
-		int width = 900;
-		int height = 600;
-
-		desk.addDockableStateWillChangeListener(event -> {
-			var current = event.getCurrentState();
-
-			if (current == null) {
-				return;
-			}
-
-			if (current.getDockable() instanceof CodeEditor ed) {
-				if (event.getFutureState().isClosed()) {
-					if (removeIfDirty(ed.tabIndex, ed) == false) {
-						event.cancel();
-					}
-				}
-			}
-		});
-
-		//main_panel.add(desk, BorderLayout.CENTER);
-
-		JToolBar tool_bar = makeToolBar(
-						Actions.newProjectAction,
-						Actions.newFileAction,
-						Actions.openFileAction,
-						null,
-						Actions.saveAction,
-						null,
-						Actions.undoAction,
-						Actions.redoAction,
-						Actions.compileAction,
-						Actions.renderAction,
-						null,
-						Actions.exitAction
-		);
-		// main_panel.add(tool_bar, BorderLayout.PAGE_START);
-
-		current_file = new JLabel("[NONE]");
-		line_info = new JLabel();
-		line_perc = new JLabel();
-		charset = new JLabel();
-		seekBar = new JProgressBar();
-		seekBar.setValue(50);
-
-		JToolBar bottom_bar = makeLRToolBar(
-						new Component[]{current_file, null},
-						new Component[]{line_info, line_perc, seekBar, null, charset}
-		);
-
-		Action[] app_actions = {
-			Actions.showFileTreeAction,
-			Actions.searchAction,
-			Actions.commitAction,
-			Actions.exportAction,
-			Actions.AIAction,
-			Actions.communityAction,
-			Actions.pluginsAction
-		};
-
-		var bar = makeCoolbar(height, app_actions);
-
-		JMenuBar menu_bar = new JMenuBar();
-		this.setJMenuBar(menu_bar);
-
-		Actions.loadActions();
-		Menus.addMenus(menu_bar);
-		this.setIconImage(Icons.getIcon("appicon").getImage());
-
-		// Canvas and Access Panels
-		var canvas_panel = CanvasFrame.the();
-		var access_panel = new DockablePanel(new BorderLayout(), "Run");
-		access_panel.add(new AccessFrame(width));
-
-		var render_panel = new DockablePanel(new BorderLayout(), "Render");
-		render_panel.add(canvas_panel, BorderLayout.CENTER);
-		Action[] render_actions = {
-			Actions.normalAction,
-			Actions.gridAction,
-			Actions.pointAction,
-			Actions.rulerAction,
-			Actions.snapAction,
-			Actions.brushAction,
-			Actions.thickBrushAction,
-			Actions.paintBucketAction,
-			Actions.effectsAction,};
-
-		var short_cuts = makeCoolbar(canvas_panel.getHeight(), render_actions);
-		short_cuts.setBorder(BorderFactory.createEmptyBorder());
-		render_panel.add(short_cuts, BorderLayout.EAST);
-		render_panel.add(new JScrollPane(canvas_panel), BorderLayout.CENTER);
-
-		var cool_bar = new DockablePanel(new BorderLayout(), "Quick Access");
-		cool_bar.add(bar, BorderLayout.CENTER);
-
-		DockingPreferences.setDottedDesktopStyle();
-		getContentPane().add(desk, BorderLayout.CENTER);
-		getContentPane().add(render_panel, BorderLayout.WEST);
-		getContentPane().add(access_panel, BorderLayout.SOUTH);
-		getContentPane().add(cool_bar, BorderLayout.EAST);
-		getContentPane().add(tool_bar, BorderLayout.PAGE_START);
-		getContentPane().add(bottom_bar, BorderLayout.PAGE_END);
-
-		dashboard = new DockablePanel(new BorderLayout(), "Piccasso DashBoard", "DashBoard", "Home page", "file");
-		dashboard.add(new JScrollPane(new DashboardPanel()), BorderLayout.CENTER);
-		getContentPane().add(access_panel, BorderLayout.EAST);
-
-		desk.addDockable(dashboard);
-		desk.addDockable(cool_bar);
-		desk.setAutoHide(cool_bar, true);
-
-		desk.split(dashboard, render_panel, DockingConstants.SPLIT_RIGHT, 0.7);
-		desk.split(render_panel, access_panel, DockingConstants.SPLIT_BOTTOM);
-
-		win = this;
-
-		this.setSize(width, height);
-		this.setLocationRelativeTo(null);
-		this.setVisible(true);
-	}
-
-	private void initSearchDialogs() {
-		findDialog = new FindDialog(this, this);
-		replaceDialog = new ReplaceDialog(this, this);
-
-		SearchContext context = findDialog.getSearchContext();
-		replaceDialog.setSearchContext(context);
-	}
-
-	public static void addTab(ActionEvent e) {
-		int index = tabEditors.size();
-		CodeEditor editor = new CodeEditor();
-		editor.tabIndex = index;
-		Path file = editor.file;
-		editor.requestFocusInWindow();
-		current_file.setText(file != null ? file.toString() : "[NONE]");
-		tabEditors.put(index, editor);
-
-		// Add first editor normally
-		if (index == 0) {
-			win.desk.addDockable(editor);
-			win.desk.createTab(win.dashboard, editor, 2);
-		} else {
-			// Add to same container as first editor
-			CodeEditor firstEditor = tabEditors.get(0);
-			win.desk.createTab(firstEditor, editor, 2);
-		}
-	}
-
-	public static void addTab(Path path, Void e) {
-		var index = tabEditors.size();
-		var editor = new CodeEditor(path);
-		editor.tabIndex = index;
-		editor.load(path.toFile());
-		editor.requestFocusInWindow();
-		tabEditors.put(index, editor);
-
-		// Add first editor normally
-		if (index == 0) {
-			win.desk.createTab(win.dashboard, editor, 2);
-		} else {
-			// Add to same container as first editor
-			CodeEditor firstEditor = tabEditors.get(0);
-			win.desk.createTab(firstEditor, editor, 1);
-		}
-	}
-
-	public static void setSelectedEditor(CodeEditor ed) {
-		selected = ed;
-	}
-
-	public static CodeEditor getSelectedEditor() {
-		if (selected != null) {
-			return selected;
-		}
-
-		for (var editor : tabEditors.values()) {
-			if (editor.textArea.isFocusOwner()) {
-				return editor;
-			}
-		}
-		return tabEditors.values().toArray(CodeEditor[]::new)[0]; // fallback if nothing has focus
-	}
-
-	private static void addPlusTab(JTabbedPane tabs) {
-		var dashb = new JPanel(new BorderLayout());
-		dashb.add(new DashboardPanel(), BorderLayout.CENTER);
-		tabs.addTab("", new JScrollPane(dashb));
-
-		JButton plusBtn = new JButton();
-		plusBtn.setIcon(Icons.getIcon("add"));
-		plusBtn.setMargin(new Insets(0, 8, 0, 8));
-		plusBtn.setBorder(BorderFactory.createEmptyBorder());
-		plusBtn.setContentAreaFilled(false);
-		plusBtn.setFocusPainted(false);
-		plusBtn.addActionListener(EditorWindow::addTab);
-		tabs.setTabComponentAt(tabs.getTabCount() - 1, plusBtn);
-	}
-
-	private static Component makeTabHeader(JTabbedPane tabs, String title) {
-		JPanel tabHeader = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		tabHeader.setOpaque(false);
-
-		JLabel titleLabel = new JLabel(title + " ");
-		JButton closeButton = new JButton(Icons.getIcon("close"));
-
-		closeButton.setMargin(new Insets(0, 5, 0, 5));
-		closeButton.setFocusable(false);
-		closeButton.setBorderPainted(false);
-		closeButton.setContentAreaFilled(false);
-		closeButton.setOpaque(false);
-		closeButton.setForeground(Color.RED);
-		closeButton.setFont(closeButton.getFont().deriveFont(Font.BOLD, 12));
-
-		closeButton.addActionListener(e -> {
-			int index = tabs.indexOfTabComponent(tabHeader);
-			if (index != -1) {
-				var ed = tabEditors.get(index);
-				removeIfDirty(index, ed);
-			}
-		});
-
-		tabHeader.add(titleLabel);
-		tabHeader.add(closeButton);
-
-		return tabHeader;
-	}
-
-	public static void removeTab() {
-		if (tabEditors.size() <= 1) {
-			return;
-		}
-
-		var focused = getSelectedEditor();
-		if (focused == null) {
-			return;
-		}
-
-		Integer index = getEditorIndex(focused);
-		if (index == null) {
-			return;
-		}
-
-		removeIfDirty(index, focused);
-	}
-
-	public static void removeAllTabs() {
-		var editors = new HashMap<>(tabEditors); // Copy to avoid ConcurrentModificationException
-		for (var entry : editors.entrySet()) {
-			removeIfDirty(entry.getKey(), entry.getValue());
-		}
-	}
-
-	public static int tabsCount() {
-		return tabEditors.size();
-	}
-
-	private static boolean removeIfDirty(Integer index, CodeEditor ed) {
-		if (ed.textArea.isDirty()) {
-			int result = JOptionPane.showConfirmDialog(win, "File " + ed.filePathTruncated() + " is modified. Save?");
-			if (result == JOptionPane.OK_OPTION) {
-				return ed.saveFile();
-			}
-		}
-		win.desk.remove((Dockable) ed); // Actual removal from docking layout
-		tabEditors.remove(index);
-		migrateIndexes();
-
-		return true;
-	}
-
-	private static boolean isDocked(Dockable d) {
-		for (var state : win.desk.getDockables()) {
-			var dockable = state.getDockable();
-			if (dockable == d || dockable.equals(d)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static Integer getEditorIndex(CodeEditor ed) {
-		for (var entry : tabEditors.entrySet()) {
-			if (entry.getValue() == ed) {
-				return entry.getKey();
-			}
-		}
-		return null;
-	}
-
-	private static void migrateIndexes() {
-		HashMap<Integer, CodeEditor> newMap = new HashMap<>();
-		int idx = 0;
-		for (CodeEditor ed : tabEditors.values()) {
-			newMap.put(idx++, ed);
-		}
-		tabEditors = newMap;
-	}
-
-	public static void saveAll() {
-		for (var kv : tabEditors.entrySet()) {
-			var editor = kv.getValue();
-			editor.saveFile();
-		}
-	}
-
-	public static void setSeletedTabTitle(String title) {
-		int index = tabs.getSelectedIndex();
-		tabs.setTitleAt(index, title);
-	}
-
-	private JPanel makeCoolbar(int height, Action... actions) {
-		var cool_bar = new JPanel(new BorderLayout());
-		cool_bar.setPreferredSize(new Dimension(50, height));
-		JPanel top_buttons = new JPanel(new GridLayout(10, 1));
-		top_buttons.setOpaque(false); // transparent to inherit background
-
-		for (var action : actions) {
-			JButton btn = new JButton(action);
-			btn.setText("");
-			top_buttons.add(btn);
-		}
-
-		JPanel bottom_button = new JPanel(new BorderLayout());
-		bottom_button.setOpaque(false);
-
-		JButton settingsBtn = new JButton("", Icons.getIcon("settings"));
-		settingsBtn.setToolTipText("Settings");
-
-		bottom_button.add(settingsBtn, BorderLayout.SOUTH);
-		cool_bar.add(top_buttons, BorderLayout.NORTH);
-		cool_bar.add(bottom_button, BorderLayout.SOUTH);
-
-		return cool_bar;
-	}
-
-	private JToolBar makeToolBar(Action... actions) {
-		JToolBar cool_bar = new JToolBar();
-		for (var action : actions) {
-			if (action == null) {
-				var sep = new JSeparator(JSeparator.VERTICAL);
-				cool_bar.add(sep);
-				continue;
-			}
-			JButton btn = new JButton(action);
-			btn.setText("");
-			cool_bar.add(btn);
-		}
-		return cool_bar;
-	}
-
-	private JToolBar makeLRToolBar(Component[] llbls, Component[] rlbls) {
-		JToolBar toolBar = new JToolBar();
-		toolBar.setFloatable(false);
-		toolBar.setLayout(new BorderLayout());
-
-		// LEFT panel
-		JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-		for (var lbl : llbls) {
-			if (lbl == null) {
-				leftPanel.add(new JSeparator(SwingConstants.VERTICAL));
-			} else {
-				leftPanel.add(lbl);
-			}
-		}
-
-		// RIGHT panel
-		JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-		for (var lbl : rlbls) {
-			if (lbl == null) {
-				rightPanel.add(new JSeparator(SwingConstants.VERTICAL));
-			} else {
-				rightPanel.add(lbl);
-			}
-		}
-
-		// Add them to the toolbar using BorderLayout
-		toolBar.add(leftPanel, BorderLayout.WEST);
-		toolBar.add(rightPanel, BorderLayout.EAST);
-
-		return toolBar;
-	}
-
-	@Override
-	public void searchEvent(SearchEvent se) {
-		SearchEvent.Type type = se.getType();
-		SearchContext context = se.getSearchContext();
-		SearchResult result;
-		var ed = getSelectedEditor();
-		if (ed == null) {
-			return;
-		}
-		
-		var textArea = ed.textArea;
-
-		switch (type) {
-			default: // Prevent FindBugs warning later
-			case MARK_ALL:
-				result = SearchEngine.markAll(textArea, context);
-				break;
-			case FIND:
-				result = SearchEngine.find(textArea, context);
-				if (!result.wasFound() || result.isWrapped()) {
-					UIManager.getLookAndFeel().provideErrorFeedback(textArea);
-				}
-				break;
-			case REPLACE:
-				result = SearchEngine.replace(textArea, context);
-				if (!result.wasFound() || result.isWrapped()) {
-					UIManager.getLookAndFeel().provideErrorFeedback(textArea);
-				}
-				break;
-			case REPLACE_ALL:
-				result = SearchEngine.replaceAll(textArea, context);
-				JOptionPane.showMessageDialog(null, result.getCount()
-								+ " occurrences replaced.");
-				break;
-		}
-	}
-
-	@Override
-	public String getSelectedText() {
-		var ed = getSelectedEditor();
-		if (ed == null) {
-			return "";
-		}
-		return ed.textArea.getSelectedText();
-	}
-
-	private void customizeDock() {
-		UIManager.put("DockViewTitleBar.close", (Icon) Icons.getIcon("close"));
-		UIManager.put("DockTabbedPane.close", (Icon) Icons.getIcon("close"));
-		UIManager.put("DockViewTitleBar.isFloatButtonDisplayed", true);
-
-		var font = (Font) UIManager.get("DockViewTitleBar.titleFont");
-		UIManager.put("DockViewTitleBar.titleFont", new Font(font.getName(), font.getStyle(), 11));
-	}
+  private static JTabbedPane tabs = new JTabbedPane();
+  private static HashMap<Integer, CodeEditor> tabEditors;
+  public static EditorWindow win = null;
+  public static JLabel current_file = new JLabel();
+  public static JLabel line_info = new JLabel();
+  public static JLabel line_perc = new JLabel();
+  public static JLabel charset = new JLabel();
+  public static JProgressBar seekBar = new JProgressBar();
+  public static DockablePanel outputFrame = null;
+
+  private DockablePanel dashboard;
+
+  private CollapsibleSectionPanel csp;
+  public static FindDialog findDialog;
+  public static ReplaceDialog replaceDialog;
+  public static DockingDesktop desk = new DockingDesktop();
+  private static CodeEditor selected = null;
+
+  public static EditorWindow the() {
+    if (win == null) {
+      win = new EditorWindow();
+    }
+    return win;
+  }
+
+  public static JRootPane root = null;
+
+  public EditorWindow() {
+    super("Piccode - DashBoard");
+    new CodeEditor();
+    root = getRootPane();
+    Icons.loadIcons();
+    tabEditors = new HashMap<>();
+    CodeEditor.createTemplateManager();
+    initSearchDialogs();
+
+    DockingUISettings.getInstance().installUI();
+    customizeDock();
+
+    try {
+      UIManager.setLookAndFeel(new FlatLightLaf());
+    } catch (Exception ex) {
+      System.err.println("Failed to initialize LaF");
+    }
+
+    int width = 900;
+    int height = 600;
+
+    desk.addDockableStateWillChangeListener(event -> {
+      var current = event.getCurrentState();
+
+      if (current == null) {
+        return;
+      }
+
+      if (current.getDockable() instanceof CodeEditor ed) {
+        if (event.getFutureState().isClosed()) {
+          if (removeIfDirty(ed.tabIndex, ed) == false) {
+            event.cancel();
+          }
+        }
+      }
+    });
+
+    JPanel main_panel = new JPanel(new BorderLayout());
+    //main_panel.add(desk, BorderLayout.CENTER);
+
+    JToolBar tool_bar = makeToolBar(
+      Actions.newProjectAction,
+      Actions.newFileAction,
+      Actions.openFileAction,
+      null,
+      Actions.saveAction,
+      null,
+      Actions.undoAction,
+      Actions.redoAction,
+      Actions.compileAction,
+      Actions.renderAction,
+      null,
+      Actions.exitAction
+    );
+    main_panel.add(tool_bar, BorderLayout.PAGE_START);
+
+    current_file = new JLabel("[NONE]");
+    line_info = new JLabel();
+    line_perc = new JLabel();
+    charset = new JLabel();
+    seekBar = new JProgressBar();
+    seekBar.setValue(50);
+
+    JToolBar bottom_bar = makeLRToolBar(
+      new Component[]{current_file, null},
+      new Component[]{line_info, line_perc, seekBar, null, charset}
+    );
+    main_panel.add(bottom_bar, BorderLayout.PAGE_END);
+
+    Action[] app_actions = {
+      Actions.showFileTreeAction,
+      Actions.searchAction,
+      Actions.commitAction,
+      Actions.exportAction,
+      Actions.AIAction,
+      Actions.communityAction,
+      Actions.pluginsAction
+    };
+
+    var bar = makeCoolbar(height, app_actions);
+
+    JMenuBar menu_bar = new JMenuBar();
+    this.setJMenuBar(menu_bar);
+
+    Actions.loadActions();
+    Menus.addMenus(menu_bar);
+    this.setIconImage(Icons.getIcon("appicon").getImage());
+
+    // Canvas and Access Panels
+    var canvas_panel = CanvasFrame.the();
+    outputFrame = new DockablePanel(new BorderLayout(), "Run");
+    outputFrame.add(new AccessFrame(width));
+
+    var render_panel = new DockablePanel(new BorderLayout(), "Render");
+    render_panel.add(canvas_panel, BorderLayout.CENTER);
+    Action[] render_actions = {
+      Actions.normalAction,
+      Actions.gridAction,
+      Actions.pointAction,
+      Actions.rulerAction,
+      Actions.snapAction,
+      Actions.brushAction,
+      Actions.thickBrushAction,
+      Actions.paintBucketAction,
+      Actions.effectsAction,};
+
+    var short_cuts = makeCoolbar(canvas_panel.getHeight(), render_actions);
+    short_cuts.setBorder(BorderFactory.createEmptyBorder());
+    render_panel.add(short_cuts, BorderLayout.EAST);
+    render_panel.add(new JScrollPane(canvas_panel), BorderLayout.CENTER);
+
+    var cool_bar = new DockablePanel(new BorderLayout(), "Quick Access");
+    cool_bar.add(bar, BorderLayout.CENTER);
+
+    DockingPreferences.setDottedDesktopStyle();
+    getContentPane().add(desk, BorderLayout.CENTER);
+    getContentPane().add(render_panel, BorderLayout.WEST);
+    getContentPane().add(outputFrame, BorderLayout.SOUTH);
+    getContentPane().add(cool_bar, BorderLayout.EAST);
+    getContentPane().add(tool_bar, BorderLayout.PAGE_START);
+    getContentPane().add(bottom_bar, BorderLayout.PAGE_END);
+
+    dashboard = new DockablePanel(new BorderLayout(), "Piccasso DashBoard", "DashBoard", "Home page", "file");
+    dashboard.add(new JScrollPane(new DashboardPanel()), BorderLayout.CENTER);
+
+    desk.addDockable(dashboard);
+    desk.addDockable(cool_bar);
+    desk.setAutoHide(cool_bar, true);
+
+    desk.split(dashboard, render_panel, DockingConstants.SPLIT_RIGHT, 0.7);
+    desk.split(render_panel, outputFrame, DockingConstants.SPLIT_BOTTOM);
+
+    win = this;
+
+    this.setSize(width, height);
+    this.setLocationRelativeTo(null);
+    this.setVisible(true);
+  }
+
+  private void initSearchDialogs() {
+    findDialog = new FindDialog(this, this);
+    replaceDialog = new ReplaceDialog(this, this);
+
+    SearchContext context = findDialog.getSearchContext();
+    replaceDialog.setSearchContext(context);
+  }
+
+  public static void addTab(ActionEvent e) {
+    int index = tabEditors.size();
+    CodeEditor editor = new CodeEditor();
+    editor.tabIndex = index;
+    Path file = editor.file;
+    editor.requestFocusInWindow();
+    current_file.setText(file != null ? file.toString() : "[NONE]");
+    tabEditors.put(index, editor);
+
+    // Add first editor normally
+    if (index == 0) {
+      win.getContentPane().add(editor, BorderLayout.CENTER);
+      win.desk.addDockable(editor);
+      win.desk.createTab(win.dashboard, editor, 2);
+    } else {
+      // Add to same container as first editor
+      CodeEditor firstEditor = tabEditors.get(0);
+      win.desk.addDockable(editor);
+      win.desk.createTab(firstEditor, editor, 2);
+    }
+  }
+
+  public static void addTab(Path path, Void e) {
+    var index = tabEditors.size();
+    var editor = new CodeEditor(path);
+    editor.tabIndex = index;
+    editor.load(path.toFile());
+    editor.requestFocusInWindow();
+    tabEditors.put(index, editor);
+
+    // Add first editor normally
+    if (index == 0) {
+      win.desk.createTab(win.dashboard, editor, 2);
+    } else {
+      // Add to same container as first editor
+      CodeEditor firstEditor = tabEditors.get(0);
+      win.desk.createTab(firstEditor, editor, 1);
+    }
+  }
+
+  public static void setSelectedEditor(CodeEditor ed) {
+    selected = ed;
+  }
+
+  public static CodeEditor getSelectedEditor() {
+    if (selected != null) {
+      return selected;
+    }
+
+    for (var editor : tabEditors.values()) {
+      if (editor.textArea.isFocusOwner()) {
+        return editor;
+      }
+    }
+    return tabEditors.values().toArray(CodeEditor[]::new)[0]; // fallback if nothing has focus
+  }
+
+  private static void addPlusTab(JTabbedPane tabs) {
+    var dashb = new JPanel(new BorderLayout());
+    dashb.add(new DashboardPanel(), BorderLayout.CENTER);
+    tabs.addTab("", new JScrollPane(dashb));
+
+    JButton plusBtn = new JButton();
+    plusBtn.setIcon(Icons.getIcon("add"));
+    plusBtn.setMargin(new Insets(0, 8, 0, 8));
+    plusBtn.setBorder(BorderFactory.createEmptyBorder());
+    plusBtn.setContentAreaFilled(false);
+    plusBtn.setFocusPainted(false);
+    plusBtn.addActionListener(EditorWindow::addTab);
+    tabs.setTabComponentAt(tabs.getTabCount() - 1, plusBtn);
+  }
+
+  private static Component makeTabHeader(JTabbedPane tabs, String title) {
+    JPanel tabHeader = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    tabHeader.setOpaque(false);
+
+    JLabel titleLabel = new JLabel(title + " ");
+    JButton closeButton = new JButton(Icons.getIcon("close"));
+
+    closeButton.setMargin(new Insets(0, 5, 0, 5));
+    closeButton.setFocusable(false);
+    closeButton.setBorderPainted(false);
+    closeButton.setContentAreaFilled(false);
+    closeButton.setOpaque(false);
+    closeButton.setForeground(Color.RED);
+    closeButton.setFont(closeButton.getFont().deriveFont(Font.BOLD, 12));
+
+    closeButton.addActionListener(e -> {
+      int index = tabs.indexOfTabComponent(tabHeader);
+      if (index != -1) {
+        var ed = tabEditors.get(index);
+        removeIfDirty(index, ed);
+      }
+    });
+
+    tabHeader.add(titleLabel);
+    tabHeader.add(closeButton);
+
+    return tabHeader;
+  }
+
+  public static void removeTab() {
+    if (tabEditors.size() <= 1) {
+      return;
+    }
+
+    var focused = getSelectedEditor();
+    if (focused == null) {
+      return;
+    }
+
+    Integer index = getEditorIndex(focused);
+    if (index == null) {
+      return;
+    }
+
+    removeIfDirty(index, focused);
+  }
+
+  public static void removeAllTabs() {
+    var editors = new HashMap<>(tabEditors); // Copy to avoid ConcurrentModificationException
+    for (var entry : editors.entrySet()) {
+      removeIfDirty(entry.getKey(), entry.getValue());
+    }
+  }
+
+  public static int tabsCount() {
+    return tabEditors.size();
+  }
+
+  private static boolean removeIfDirty(Integer index, CodeEditor ed) {
+    if (ed.textArea.isDirty()) {
+      int result = JOptionPane.showConfirmDialog(win, "File " + ed.filePathTruncated() + " is modified. Save?");
+      if (result == JOptionPane.OK_OPTION) {
+        return ed.saveFile();
+      }
+    }
+    win.desk.remove((Dockable) ed); // Actual removal from docking layout
+    tabEditors.remove(index);
+    migrateIndexes();
+
+    return true;
+  }
+
+  public static boolean isDocked(Dockable d) {
+    for (var state : win.desk.getDockables()) {
+      var dockable = state.getDockable();
+      if (dockable == d || dockable.equals(d)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static Integer getEditorIndex(CodeEditor ed) {
+    for (var entry : tabEditors.entrySet()) {
+      if (entry.getValue() == ed) {
+        return entry.getKey();
+      }
+    }
+    return null;
+  }
+
+  private static void migrateIndexes() {
+    HashMap<Integer, CodeEditor> newMap = new HashMap<>();
+    int idx = 0;
+    for (CodeEditor ed : tabEditors.values()) {
+      newMap.put(idx++, ed);
+    }
+    tabEditors = newMap;
+  }
+
+  public static void saveAll() {
+    for (var kv : tabEditors.entrySet()) {
+      var editor = kv.getValue();
+      editor.saveFile();
+    }
+  }
+
+  public static void setSeletedTabTitle(String title) {
+    int index = tabs.getSelectedIndex();
+    tabs.setTitleAt(index, title);
+  }
+
+  private JPanel makeCoolbar(int height, Action... actions) {
+    var cool_bar = new JPanel(new BorderLayout());
+    cool_bar.setPreferredSize(new Dimension(50, height));
+    JPanel top_buttons = new JPanel(new GridLayout(10, 1));
+    top_buttons.setOpaque(false); // transparent to inherit background
+
+    for (var action : actions) {
+      JButton btn = new JButton(action);
+      btn.setText("");
+      top_buttons.add(btn);
+    }
+
+    JPanel bottom_button = new JPanel(new BorderLayout());
+    bottom_button.setOpaque(false);
+
+    JButton settingsBtn = new JButton("", Icons.getIcon("settings"));
+    settingsBtn.setToolTipText("Settings");
+
+    bottom_button.add(settingsBtn, BorderLayout.SOUTH);
+    cool_bar.add(top_buttons, BorderLayout.NORTH);
+    cool_bar.add(bottom_button, BorderLayout.SOUTH);
+
+    return cool_bar;
+  }
+
+  private JToolBar makeToolBar(Action... actions) {
+    JToolBar cool_bar = new JToolBar();
+    for (var action : actions) {
+      if (action == null) {
+        var sep = new JSeparator(JSeparator.VERTICAL);
+        cool_bar.add(sep);
+        continue;
+      }
+      JButton btn = new JButton(action);
+      btn.setText("");
+      cool_bar.add(btn);
+    }
+    return cool_bar;
+  }
+
+  private JToolBar makeLRToolBar(Component[] llbls, Component[] rlbls) {
+    JToolBar toolBar = new JToolBar();
+    toolBar.setFloatable(false);
+    toolBar.setLayout(new BorderLayout());
+
+    // LEFT panel
+    JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+    for (var lbl : llbls) {
+      if (lbl == null) {
+        leftPanel.add(new JSeparator(SwingConstants.VERTICAL));
+      } else {
+        leftPanel.add(lbl);
+      }
+    }
+
+    // RIGHT panel
+    JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+    for (var lbl : rlbls) {
+      if (lbl == null) {
+        rightPanel.add(new JSeparator(SwingConstants.VERTICAL));
+      } else {
+        rightPanel.add(lbl);
+      }
+    }
+
+    // Add them to the toolbar using BorderLayout
+    toolBar.add(leftPanel, BorderLayout.WEST);
+    toolBar.add(rightPanel, BorderLayout.EAST);
+
+    return toolBar;
+  }
+
+  @Override
+  public void searchEvent(SearchEvent se) {
+    SearchEvent.Type type = se.getType();
+    SearchContext context = se.getSearchContext();
+    SearchResult result;
+    var ed = getSelectedEditor();
+    if (ed == null) {
+      return;
+    }
+
+    var textArea = ed.textArea;
+
+    switch (type) {
+      default: // Prevent FindBugs warning later
+      case MARK_ALL:
+        result = SearchEngine.markAll(textArea, context);
+        break;
+      case FIND:
+        result = SearchEngine.find(textArea, context);
+        if (!result.wasFound() || result.isWrapped()) {
+          UIManager.getLookAndFeel().provideErrorFeedback(textArea);
+        }
+        break;
+      case REPLACE:
+        result = SearchEngine.replace(textArea, context);
+        if (!result.wasFound() || result.isWrapped()) {
+          UIManager.getLookAndFeel().provideErrorFeedback(textArea);
+        }
+        break;
+      case REPLACE_ALL:
+        result = SearchEngine.replaceAll(textArea, context);
+        JOptionPane.showMessageDialog(null, result.getCount()
+          + " occurrences replaced.");
+        break;
+    }
+  }
+
+  @Override
+  public String getSelectedText() {
+    var ed = getSelectedEditor();
+    if (ed == null) {
+      return "";
+    }
+    return ed.textArea.getSelectedText();
+  }
+
+  private void customizeDock() {
+    UIManager.put("DockViewTitleBar.close", (Icon) Icons.getIcon("close"));
+    UIManager.put("DockTabbedPane.close", (Icon) Icons.getIcon("close"));
+    UIManager.put("DockViewTitleBar.isFloatButtonDisplayed", true);
+
+    var font = (Font) UIManager.get("DockViewTitleBar.titleFont");
+    UIManager.put("DockViewTitleBar.titleFont", new Font(font.getName(), font.getStyle(), 11));
+  }
+
+  public static void dock(DockablePanel dockable) {
+    desk.addDockable(dockable);
+  }
+
+  public static void dock(DockablePanel dockable, int pos) {
+    desk.addDockable(dockable);
+  }
 
 }
