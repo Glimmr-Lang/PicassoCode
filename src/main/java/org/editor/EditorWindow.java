@@ -237,7 +237,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 
 		// Add first editor normally
 		if (index == 0) {
-			win.desk.addDockable(editor);
+			win.getContentPane().add(editor);
 			win.desk.createTab(win.dashboard, editor, 2);
 		} else {
 			// Add to same container as first editor
@@ -256,6 +256,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 
 		// Add first editor normally
 		if (index == 0) {
+			win.getContentPane().add(editor);
 			win.desk.createTab(win.dashboard, editor, 2);
 		} else {
 			// Add to same container as first editor
