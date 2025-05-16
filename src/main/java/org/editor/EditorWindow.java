@@ -68,6 +68,8 @@ public final class EditorWindow extends JFrame implements SearchListener {
   public static JLabel charset = new JLabel();
   public static JProgressBar seekBar = new JProgressBar();
   public static DockablePanel outputFrame = null;
+  public static DockablePanel render_panel = null;
+  
 
   private DockablePanel dashboard;
 
@@ -179,7 +181,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
     outputFrame = new DockablePanel(new BorderLayout(), "Run");
     outputFrame.add(new AccessFrame(width));
 
-    var render_panel = new DockablePanel(new BorderLayout(), "Render");
+    render_panel = new DockablePanel(new BorderLayout(), "Render");
     render_panel.add(canvas_panel, BorderLayout.CENTER);
     Action[] render_actions = {
       Actions.normalAction,
@@ -545,10 +547,12 @@ public final class EditorWindow extends JFrame implements SearchListener {
   }
 
   public static void dock(DockablePanel dockable) {
+    win.getContentPane().add(dockable, BorderLayout.CENTER);
     desk.addDockable(dockable);
   }
 
   public static void dock(DockablePanel dockable, int pos) {
+    win.getContentPane().add(dockable);
     desk.addDockable(dockable);
   }
 

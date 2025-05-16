@@ -72,6 +72,7 @@ public class Icons {
 			"redo",
 			"remove",
 			"rename",
+      "render",
 			"restore-page",
 			"restore-window",
 			"right-navigation-toolbar",

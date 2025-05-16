@@ -1,6 +1,7 @@
 package org.editor.events;
 
 import javax.swing.Action;
+import javax.swing.Icon;
 import org.editor.CanvasFrame;
 import org.editor.EditorWindow;
 import org.editor.util.It;
@@ -66,7 +67,8 @@ public class Actions {
 					findAction,
 					gotoLine,
 					replaceAction,
-          showOutputFrame;
+          showOutputFrame,
+          showRenderFrame;
 
 	public static void loadActions() {
 		compileAction
@@ -458,10 +460,19 @@ public class Actions {
 						.build();
     showOutputFrame
       = AppAction
-      .create("Open Code Editor")
+      .create("Output")
       .icon("terminal")
       .shortcut("control T")
       .handler(MenuEvents::showOutputFrame)
+      .build();
+    
+    //Render Outpt
+    showRenderFrame
+      = AppAction
+      .create("Render")
+      .icon("render")
+      .shortcut("control Y")
+      .handler(MenuEvents::showRenderFrame)
       .build();
     
 	}

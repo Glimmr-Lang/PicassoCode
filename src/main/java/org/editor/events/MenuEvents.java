@@ -144,4 +144,16 @@ public class MenuEvents {
     
     EditorWindow.dock(EditorWindow.outputFrame);
   }
+
+  static void showRenderFrame(ActionEvent e) {
+    if (EditorWindow.render_panel == null) {
+      return;
+    }
+    
+    if (EditorWindow.isDocked(EditorWindow.render_panel)) {
+      return;
+    }
+    
+    EditorWindow.dock(EditorWindow.render_panel);
+  }
 }

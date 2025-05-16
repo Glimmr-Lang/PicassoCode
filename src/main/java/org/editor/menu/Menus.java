@@ -174,8 +174,12 @@ public class Menus {
   }
 
   private static void addWindowsMenu(JMenuBar menu_bar) {
+    //Add Window
     JMenu windownMenu = new JMenu("Window");
+    //Add Output Menu Item
     windownMenu.add(new JMenuItem(Actions.showOutputFrame));
+    //Add Render Menu Item
+    windownMenu.add(new JMenuItem(Actions.showRenderFrame));
 
     menu_bar.add(windownMenu);
   }
