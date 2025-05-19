@@ -10,7 +10,7 @@ import java.util.Objects;
  * @author hexaredecimal
  */
 public class PiccodeObject implements PiccodeValue {
-	private HashMap<String, PiccodeValue> obj;
+	public HashMap<String, PiccodeValue> obj;
 
 	public PiccodeObject(HashMap<String, PiccodeValue> obj) {
 		this.obj = obj;
