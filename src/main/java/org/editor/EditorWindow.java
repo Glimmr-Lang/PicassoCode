@@ -213,6 +213,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 
 		win = this;
 
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(width, height);
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
