@@ -78,6 +78,8 @@ public class Compiler {
 		} catch (Exception rte) {
 			rte.printStackTrace();
 			AccessFrame.writeError(rte.getMessage());
+		} finally {
+			Context.top.dropStackFrame();
 		}
 	}
 
