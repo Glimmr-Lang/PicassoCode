@@ -105,6 +105,7 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 		g2.setColor(Color.BLACK);
 		gfx = g2;
 		if (!Compiler.main_loop.isEmpty()) {
+			Context.top.pushStack();
 			Context.top.putLocal("dt", new PiccodeNumber(String.format("%s", deltaTime)));
 			try {
 				AccessFrame.msgs.setText("");
@@ -116,6 +117,8 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 				System.out.println("ERROR: " + e.getMessage());
 				e.printStackTrace();
 				Compiler.main_loop.clear();
+			} finally {
+				Context.top.dropStackFrame();
 			}
 		}
 
