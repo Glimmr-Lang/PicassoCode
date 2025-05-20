@@ -54,6 +54,7 @@ public class Icons {
 			"license",
 			"line",
 			"logout",
+			"markdown",
 			"navigation-toolbar-bottom",
 			"navigation-toolbar-left",
 			"navigation-toolbar-top",
