@@ -1,4 +1,4 @@
-package org.editor;
+package org.editor.panels;
 
 import com.vlsolutions.swing.docking.DockKey;
 import com.vlsolutions.swing.docking.Dockable;

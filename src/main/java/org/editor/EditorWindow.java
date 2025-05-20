@@ -1,5 +1,6 @@
 package org.editor;
 
+import org.editor.panels.DockablePanel;
 import org.editor.panels.DashboardPanel;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.vlsolutions.swing.docking.Dockable;
