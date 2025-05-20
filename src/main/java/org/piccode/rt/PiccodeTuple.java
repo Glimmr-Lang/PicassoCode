@@ -9,7 +9,7 @@ import java.util.Objects;
  * @author hexaredecimal
  */
 public class PiccodeTuple implements PiccodeValue {
-	private List<PiccodeValue> nodes;
+	public List<PiccodeValue> nodes;
 
 	public PiccodeTuple(List<PiccodeValue> nodes) {
 		this.nodes = nodes;
