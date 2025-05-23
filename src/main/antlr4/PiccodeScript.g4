@@ -53,6 +53,7 @@ expr_stmt: expr;
 expr
 	: expr LPAREN call_expr_list? RPAREN
 	| var_decl
+	| closure_decl
 	| expr DOT expr
 	| expr PIPE expr         
   | expr OR expr           
@@ -69,6 +70,7 @@ expr
 	| expr BAND expr         
 	| expr MUL expr         
 	| expr DIV expr         
+	| expr MOD expr         
 	| expr ADD expr          
 	| expr SUB expr         
 	| expr DOT expr
@@ -86,6 +88,7 @@ expr
 	| STRING                           
 	;
 
+closure_decl: BOR arg_list? BOR ARROW expr;
 
 unary: 
 	EXCLAIM expr
@@ -126,6 +129,7 @@ ADD: '+';
 SUB: '-';
 MUL: '*';
 DIV: '/';
+MOD: '%';
 
 GT: '>';
 GE: '>=';
