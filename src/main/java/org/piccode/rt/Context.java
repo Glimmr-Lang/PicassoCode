@@ -23,6 +23,12 @@ public class Context {
 	}
 
 	public void pushStack() {
+		if (!scope_stack.isEmpty()) {
+			var _top = scope_stack.peek();
+			var new_stack = new HashMap<>(_top);
+			scope_stack.push(new_stack);
+			return;
+		}
 		scope_stack.push(new HashMap<>());
 	}
 

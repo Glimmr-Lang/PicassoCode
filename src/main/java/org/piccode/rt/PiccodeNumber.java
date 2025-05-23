@@ -37,7 +37,9 @@ public class PiccodeNumber implements PiccodeValue {
 
 		if (!(obj instanceof PiccodeNumber)) return false;
 		var num = (PiccodeNumber) obj;
-		return num.number.equals(this.number);
+		var lhs = ((Double) this.raw()).doubleValue();
+		var rhs = ((Double) num.raw()).doubleValue();
+		return lhs == rhs;
 	}
 	
 	
