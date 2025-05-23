@@ -5,7 +5,6 @@ import java.util.List;
 import org.piccode.rt.*;
 import java.util.*;
 
-
 /**
  *
  * @author hexaredecimal
@@ -43,12 +42,16 @@ public class WhenAst implements Ast {
 		for (var match_case : cases) {
 			var tempSymtable = new HashMap<String, PiccodeValue>();
 			if (isMatching(match_case.match, cond_value, tempSymtable)) {
-				Context.top.pushStack();
-				for (var entry : tempSymtable.entrySet()) {
-					Context.top.putLocal(entry.getKey(), entry.getValue());
+				if (!tempSymtable.isEmpty()) {
+					Context.top.pushStack();
+					for (var entry : tempSymtable.entrySet()) {
+						Context.top.putLocal(entry.getKey(), entry.getValue());
+					}
 				}
 				var result = match_case.value.execute();
-				Context.top.dropStackFrame();
+				if (!tempSymtable.isEmpty()) {
+					Context.top.dropStackFrame();
+				}
 				return result;
 			}
 		}
@@ -71,20 +74,22 @@ public class WhenAst implements Ast {
 
 	private boolean matchPattern(Ast pattern, PiccodeValue value, Map<String, PiccodeValue> temp) {
 		if (pattern instanceof IdentifierAst id) {
-			temp.put(id.text, value);
+			if (!id.text.equals("_")) {
+				temp.put(id.text, value);
+			}
 			return true;
 		}
-		
+
 		if (pattern instanceof NumberAst lit) {
 			var litVal = lit.execute();
-			return Objects.equals(litVal, value);
+			return litVal.equals(value);
 		}
-		
+
 		if (pattern instanceof StringAst lit) {
 			var litVal = lit.execute();
 			return Objects.equals(litVal, value);
 		}
-		
+
 		if (pattern instanceof TupleAst tup && value instanceof PiccodeTuple vTup) {
 			var items = tup.nodes;
 			var vItems = vTup.nodes;

@@ -37,18 +37,23 @@ public class BinOpAst implements Ast {
 			double result = 0;
 			if (op.equals("+")) {
 				result = (double) lf.raw() + (double) rh.raw();
+				return new PiccodeNumber(String.valueOf(result));
 			}
 			if (op.equals("-")) {
 				result = (double) lf.raw() - (double) rh.raw();
+				return new PiccodeNumber(String.valueOf(result));
 			}
 			if (op.equals("*")) {
 				result = (double) lf.raw() * (double) rh.raw();
+				return new PiccodeNumber(String.valueOf(result));
 			}
 			if (op.equals("/")) {
 				result = (double) lf.raw() / (double) rh.raw();
+				return new PiccodeNumber(String.valueOf(result));
 			}
 			if (op.equals("%")) {
 				result = (double) lf.raw() % (double) rh.raw();
+				return new PiccodeNumber(String.valueOf(result));
 			}
 
 			if (op.equals(">")) {
@@ -69,19 +74,22 @@ public class BinOpAst implements Ast {
 
 			if (op.equals("<<")) {
 				result = ((int) (double)lf.raw()) << ((int) (double)rh.raw());
+				return new PiccodeNumber(String.valueOf(result));
 			}
 			if (op.equals(">>")) {
 				result = ((int) (double)lf.raw()) >> ((int) (double)rh.raw());
+				return new PiccodeNumber(String.valueOf(result));
 			}
 
 			if (op.equals("|")) {
 				result = ((int) (double)lf.raw()) | ((int) (double)rh.raw());
+				return new PiccodeNumber(String.valueOf(result));
 			}
 
 			if (op.equals("&")) {
 				result = ((int) (double)lf.raw()) & ((int) (double)rh.raw());
+				return new PiccodeNumber(String.valueOf(result));
 			}
-			return new PiccodeNumber(String.valueOf(result));
 		}
 
 		if (op.equals("+")) {
@@ -90,11 +98,11 @@ public class BinOpAst implements Ast {
 		}
 
 		if (op.equals("==")) {
-			return new PiccodeBoolean(left.raw() == right.raw() ? "true" : "false");
+			return new PiccodeBoolean(left.equals(right) ? "true" : "false");
 		}
 
 		if (op.equals("!=")) {
-			return new PiccodeBoolean(left.raw() == right.raw() ? "true" : "false");
+			return new PiccodeBoolean(left.equals(right) ? "true" : "false");
 		}
 
 		throw new PiccodeException("Invalid operator:  " + op + " " + left.getClass() + " vs " + right.getClass());

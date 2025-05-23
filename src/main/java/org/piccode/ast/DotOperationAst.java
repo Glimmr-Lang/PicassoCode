@@ -6,6 +6,7 @@ import org.piccode.rt.PiccodeException;
 import org.piccode.rt.PiccodeModule;
 import org.piccode.rt.PiccodeNumber;
 import org.piccode.rt.PiccodeObject;
+import org.piccode.rt.PiccodeString;
 import org.piccode.rt.PiccodeTuple;
 import org.piccode.rt.PiccodeValue;
 
@@ -45,7 +46,11 @@ public class DotOperationAst implements Ast {
 
 		if (left instanceof PiccodeArray arr && rhs instanceof IdentifierAst id && id.text.equals("len")) {
 			return new PiccodeNumber("" + arr.array().length);
-		} 
+		}
+
+		if (left instanceof PiccodeString str && rhs instanceof IdentifierAst id && id.text.equals("len")) {
+			return new PiccodeNumber("" + str.toString().length());
+		}
 		
 		else if (left instanceof PiccodeArray arr){
 			return processArrayIndexing(arr.array(), rhs.execute());

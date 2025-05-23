@@ -32,6 +32,19 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 	}
 
 	@Override
+	public Ast visitClosure_decl(Closure_declContext ctx) {
+		
+		var args = visitArgs(ctx.arg_list());
+		var body = visitExpr(ctx.expr());
+
+		if (args.isEmpty()) {
+			return new ClosureAst(null, body);
+		}
+
+		return new ClosureAst(args, body);
+	}
+
+	@Override
 	public Ast visitFunc(FuncContext ctx) {
 		var tok = ctx.ID().getSymbol();
 		var name = tok.getText();
@@ -48,17 +61,22 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 
 	public List<Arg> visitFuncArgs(Func_argsContext ctx) {
 		var args = new ArrayList<Arg>();
-
 		if (ctx.arg_list() == null) {
 			return args;
 		}
 
-		for (var arg : ctx.arg_list().arg()) {
+		return visitArgs(ctx.arg_list());
+	}
+
+	public List<Arg> visitArgs(Arg_listContext ctx) {
+		var args = new ArrayList<Arg>();
+		for (var arg : ctx.arg()) {
 			var _arg = (Arg) visitArg(arg);
 			args.add(_arg);
 		}
 		return args;
 	}
+
 
 	@Override
 	public Ast visitArg(ArgContext ctx) {
@@ -183,6 +201,10 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 			return visitVar_decl(expr.var_decl());
 		}
 
+		if (expr.closure_decl() != null) {
+			return visitClosure_decl(expr.closure_decl());
+		}
+		
 		if (expr.when_expr() != null) {
 			return visitWhen_expr(expr.when_expr());
 		}
@@ -209,6 +231,10 @@ public class PiccodeVisitor extends PiccodeScriptBaseVisitor<Ast> {
 
 		if (expr.DIV() != null) {
 			return visitBinOp("/", expr);
+		}
+
+		if (expr.MOD() != null) {
+			return visitBinOp("%", expr);
 		}
 
 		if (expr.GT() != null) {
