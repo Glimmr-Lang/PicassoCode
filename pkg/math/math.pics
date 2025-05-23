@@ -20,12 +20,25 @@ module Math {
 	function pow(a=0, b=0) = pic_nat_pow(a, b) 
 
 	function clamp(a=0, low=-1, high=1) = 
-   if a < low { low }
-   else if a > high { high }
-   else { a }
+	   if a < low { low }
+	   else { 
+		   if a > high { high }
+		   else { a }
+	   }
 
-	function max(a=0,b=0) = if a > b { a } else { b }
-	function min(a=0,b=0) = if a < b { a } else { b }
+	function max(a=0, b=0) = if a > b { a } else { b }
+	function min(a=0, b=0) = if a < b { a } else { b }
+
+	function degToRad(deg=0) = deg * (3.141592653589793 / 180)
+	function radToDeg(rad=0) = rad * (180 / 3.141592653589793)
+
+	function isEven(n=0) = (n % 2) == 0
+	function isOdd(n=0) = (n % 2) != 0
+
+	function factorial(n=0) =
+		if n <= 1 { 1 }
+		else { n * factorial(n - 1) }	
+		
 }
 
 
