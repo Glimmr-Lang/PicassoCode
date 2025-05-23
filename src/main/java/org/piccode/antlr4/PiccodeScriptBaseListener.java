@@ -174,6 +174,18 @@ public class PiccodeScriptBaseListener implements PiccodeScriptListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterClosure_decl(PiccodeScriptParser.Closure_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitClosure_decl(PiccodeScriptParser.Closure_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterUnary(PiccodeScriptParser.UnaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
