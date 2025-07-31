@@ -132,4 +132,9 @@ public class MenuEvents {
 		closeAllTabs(e);
 		System.exit(0);
 	}
+
+	static void newFile(ActionEvent e) {
+		// TODO: Use a file creator dialog in the future
+		EditorWindow.addTab(e);
+	}
 }

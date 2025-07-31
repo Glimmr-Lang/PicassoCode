@@ -1,9 +1,14 @@
 package org.editor.events;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 import org.editor.AccessFrame;
+import org.editor.CanvasFrame;
 import org.editor.EditorWindow;
+import org.piccode.ast.Ast;
 import org.piccode.backend.Compiler;
+import org.piccode.piccodescript.ErrorAsciiKind;
+import org.piccode.rt.PiccodeException;
 
 /**
  *
@@ -16,18 +21,34 @@ public class AccessEvents {
 		if (ed == null) {
 			return;
 		}
-    var code  = ed.textArea.getText();
+
+		if (ed.file == null) {
+			EditorWindow.current_file.setText("Cannot compiler unsaved code");
+			return;
+		}
+
+		var file = ed.file.toString();
+		var code = ed.textArea.getText();
+		CanvasFrame.file = file;
+		CanvasFrame.code = code;
+		CanvasFrame.start = true;
 		AccessFrame.writeSuccess("Compilation started: ");
-		Compiler.compile(code, true);
 	}
-	
+
 	public static void compile(ActionEvent e) {
 		var ed = EditorWindow.getSelectedEditor();
 		if (ed == null) {
 			return;
 		}
-    var code  = ed.textArea.getText();
+
+		if (ed.file == null) {
+			EditorWindow.current_file.setText("Cannot compiler unsaved code");
+			return;
+		}
+
+		var code = ed.textArea.getText();
 		AccessFrame.writeSuccess("Compilation started: ");
-		Compiler.compile(code, false);
+		Compiler.out = AccessFrame.AccessFrameOutputStream.out;
 	}
+
 }
