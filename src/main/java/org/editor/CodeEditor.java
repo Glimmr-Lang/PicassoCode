@@ -131,6 +131,17 @@ public class CodeEditor extends JPanel implements Dockable {
 		this.add(sp, BorderLayout.CENTER);
 	}
 
+
+
+	public void setKey(String name) {
+			String tip = "Source code editor"; 
+			var icon = Icons.getIcon("code-file");
+			key = new DockKey(name, name, tip, icon);
+			key.setCloseEnabled(true);
+			key.setAutoHideEnabled(true);
+			this.putClientProperty("dockKey", key);
+	}
+	
 	public boolean saveFile() {
 		if (isTmp) {
 			return saveFileAs();

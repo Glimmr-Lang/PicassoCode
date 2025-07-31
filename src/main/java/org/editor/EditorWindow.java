@@ -60,7 +60,6 @@ import org.fife.ui.rtextarea.SearchResult;
  */
 public final class EditorWindow extends JFrame implements SearchListener {
 
-	private static JTabbedPane tabs = new JTabbedPane();
 	private static HashMap<Integer, CodeEditor> tabEditors;
 	public static EditorWindow win = null;
 	public static JLabel current_file = new JLabel();
@@ -279,7 +278,11 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		} else {
 			// Add to same container as first editor
 			CodeEditor firstEditor = tabEditors.get(0);
-			win.desk.createTab(firstEditor, editor, 1);
+			try {
+				win.desk.createTab(firstEditor, editor, 1);
+			} catch (NullPointerException npe) {
+				win.desk.createTab(win.dashboard, editor, 2);
+			}
 		}
 	}
 
@@ -297,7 +300,9 @@ public final class EditorWindow extends JFrame implements SearchListener {
 				return editor;
 			}
 		}
-		return tabEditors.values().toArray(CodeEditor[]::new)[0]; // fallback if nothing has focus
+		var values = tabEditors.values();
+		if (values.isEmpty()) return null;
+		return values.toArray(CodeEditor[]::new)[0]; // fallback if nothing has focus
 	}
 
 	private static void addPlusTab(JTabbedPane tabs) {
@@ -423,8 +428,8 @@ public final class EditorWindow extends JFrame implements SearchListener {
 	}
 
 	public static void setSeletedTabTitle(String title) {
-		int index = tabs.getSelectedIndex();
-		tabs.setTitleAt(index, title);
+		var ed = getSelectedEditor();
+		ed.setKey(title);
 	}
 
 	private JPanel makeCoolbar(int height, Action... actions) {
