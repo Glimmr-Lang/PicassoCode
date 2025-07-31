@@ -2,9 +2,6 @@ package org.editor.errors;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.editor.errors.IDEErrorListener.SyntaxErrorInfo;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
@@ -13,6 +10,7 @@ import org.fife.ui.rsyntaxtextarea.parser.ParseResult;
 import org.piccode.antlr4.PiccodeScriptLexer;
 import org.piccode.antlr4.PiccodeScriptParser;
 import org.piccode.ast.PiccodeVisitor;
+import org.piccode.backend.Compiler;
 
 /**
  *
@@ -26,7 +24,10 @@ public class EditorParser extends AbstractParser  {
 
 		try {
 			String code = doc.getText(0, doc.getLength());
-
+		} catch (BadLocationException ex) {
+			System.getLogger(EditorParser.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+		}
+			/*
 			var lexer = new PiccodeScriptLexer(CharStreams.fromString(code));
 			var tokens = new CommonTokenStream(lexer);
 			var parser = new PiccodeScriptParser(tokens);
@@ -38,8 +39,6 @@ public class EditorParser extends AbstractParser  {
 			lexer.addErrorListener(errorListener);
 			parser.addErrorListener(errorListener);
 
-			var visitor = new PiccodeVisitor();
-			visitor.visit(parser.stmts());
 
 			// Report any collected syntax errors to the RSyntax framework
 			for (SyntaxErrorInfo info : errorListener.getSyntaxErrorInfos()) {
@@ -50,7 +49,7 @@ public class EditorParser extends AbstractParser  {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-
+		*/
 		return result;
 	}
 

@@ -19,13 +19,20 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.plaf.basic.BasicGraphicsUtils;
+import org.piccode.ast.Ast;
 import org.piccode.backend.Compiler;
 import org.piccode.rt.Context;
+import org.piccode.rt.PiccodeException;
 import org.piccode.rt.PiccodeNumber;
+import org.piccode.rt.PiccodeReturnException;
+import org.piccode.rt.PiccodeUnit;
+import org.piccode.rt.PiccodeValue;
 
 /**
  *
@@ -58,6 +65,10 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 
 	private static CanvasFrame _the = null;
 	private DockKey key = new DockKey("canvas");
+
+	public static String code = null;
+	public static String file = null;
+	public static boolean start = false;
 
 	private CanvasFrame() {
 		super(new BorderLayout());
@@ -104,29 +115,24 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setColor(Color.BLACK);
 		gfx = g2;
-		if (!Compiler.main_loop.isEmpty()) {
-			Context.top.pushStack();
-			Context.top.putLocal("dt", new PiccodeNumber(String.format("%s", deltaTime)));
-			try {
+		if (start && file != null && code != null) {
+			SwingUtilities.invokeLater(() -> {
 				AccessFrame.msgs.setText("");
-				for (var stmt : Compiler.main_loop) {
-					stmt.execute();
-				}
-			} catch (Exception e) {
-				AccessFrame.writeError("ERROR: " + e.getMessage());
-				System.out.println("ERROR: " + e.getMessage());
-				e.printStackTrace();
-				Compiler.main_loop.clear();
-			} finally {
-				Context.top.dropStackFrame();
-			}
+				new Thread(() -> compileFrame())
+								.start();
+			});
+			start = false;
 		}
 
 		drawSelection(g2);
 		if (showHighlight) {
 			drawCrosshair(g2);
 		}
+	}
 
+	private PiccodeValue compileFrame() {
+		var result = Compiler.compile(file, code);
+		return result;
 	}
 
 	private void drawSelection(Graphics2D g2) {
@@ -316,7 +322,7 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 				mouseX = snap(mouseX);
 				mouseY = snap(mouseY);
 			}
-			
+
 			g2.setColor(Color.RED);
 			g2.drawLine(mouseX, 0, mouseX, getHeight()); // vertical
 			g2.drawLine(0, mouseY, getWidth(), mouseY);  // horizontal
@@ -326,4 +332,5 @@ public class CanvasFrame extends JPanel implements MouseListener, MouseMotionLis
 			g2.fillOval(mouseX - radius, mouseY - radius, radius * 2, radius * 2);
 		}
 	}
+
 }

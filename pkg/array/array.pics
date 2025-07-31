@@ -1,6 +1,0 @@
-
-module Array {
-	function concat(left=[], right=[]) = pic_nat_array_concat(left, right)
-	function toString(arr=[]) = pic_nat_array_tostring(arr)
-	function join(array=[], sep=",") = pic_nat_array_join(array, sep)
-}

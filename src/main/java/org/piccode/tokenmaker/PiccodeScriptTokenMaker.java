@@ -10,18 +10,18 @@ import org.piccode.antlr4.PiccodeScriptLexer;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMaker;
 import org.fife.ui.rsyntaxtextarea.TokenMap;
 
+
 /**
  *
  * @author hexaredecimal
  */
 
 public class PiccodeScriptTokenMaker extends AbstractTokenMaker {
-	private static List<String> importants = List.of("pkg", "remote", "super", "true", "false");
+	private static List<String> importants = List.of("true", "false", "await");
 
 	@Override
 	public Token getTokenList(Segment text, int initialTokenType, int startOffset) {
 		resetTokenList();
-
 		// Correct way to extract the exact text from the segment
 		String lineText = new String(text.array, text.offset, text.count);
 		CharStream input = CharStreams.fromString(lineText);
@@ -42,14 +42,13 @@ public class PiccodeScriptTokenMaker extends AbstractTokenMaker {
 
 			antlrToken = lexer.nextToken();
 		}
-
 		addNullToken(); // Always end the token chain
+	
 		return firstToken;
 	}
 
 	private int mapAntlrToRSyntaxType(int antlrType, String text) {
 		switch (antlrType) {
-			case PiccodeScriptLexer.FUNCTION:
 			case PiccodeScriptLexer.IF:
 			case PiccodeScriptLexer.ELSE:
 			case PiccodeScriptLexer.WHEN:
@@ -58,6 +57,8 @@ public class PiccodeScriptTokenMaker extends AbstractTokenMaker {
 			case PiccodeScriptLexer.IS:
 			case PiccodeScriptLexer.MODULE:
 			case PiccodeScriptLexer.DO:
+			case PiccodeScriptLexer.USE:
+			case PiccodeScriptLexer.IN:
 				return Token.RESERVED_WORD;
 			case PiccodeScriptLexer.STRING:
 				return Token.LITERAL_STRING_DOUBLE_QUOTE;
@@ -89,7 +90,7 @@ public class PiccodeScriptTokenMaker extends AbstractTokenMaker {
 	@Override
 	public TokenMap getWordsToHighlight() {
 		TokenMap tokenMap = new TokenMap();
-		var keywords = List.of("function", "import", "let", "when", "is", "if", "else", "module", "do");
+		var keywords = List.of("import", "let", "in", "when", "is", "if", "else", "module", "do", "use");
 		for (var kw : keywords) {
 			tokenMap.put(kw, Token.RESERVED_WORD);
 		}

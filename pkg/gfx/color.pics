@@ -1,4 +1,0 @@
-
-
-function color(rgb=0) = pic_nat_color(rgb)
-

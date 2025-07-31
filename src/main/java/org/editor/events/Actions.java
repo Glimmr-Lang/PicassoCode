@@ -119,7 +119,7 @@ public class Actions {
 										.icon("add-file")
 										.tooltip("Create a new file")
 										.shortcut("control N")
-										.handler(e -> It.todo())
+										.handler(MenuEvents::newFile)
 										.build();
 
 		openProjectAction

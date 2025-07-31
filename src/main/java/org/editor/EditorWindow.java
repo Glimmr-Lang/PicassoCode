@@ -36,9 +36,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.plaf.metal.MetalIconFactory;
 import org.editor.events.Actions;
 import org.editor.icons.Icons;
 import org.editor.menu.Menus;
+import org.editor.panels.FileTreePanel;
+import org.editor.panels.PluginsPanel;
+import org.editor.panels.VCPanel;
 
 import org.fife.rsta.ui.CollapsibleSectionPanel;
 //import org.fife.rsta.ui.DocumentMap;
@@ -56,7 +60,6 @@ import org.fife.ui.rtextarea.SearchResult;
  */
 public final class EditorWindow extends JFrame implements SearchListener {
 
-	private static JTabbedPane tabs = new JTabbedPane();
 	private static HashMap<Integer, CodeEditor> tabEditors;
 	public static EditorWindow win = null;
 	public static JLabel current_file = new JLabel();
@@ -83,21 +86,25 @@ public final class EditorWindow extends JFrame implements SearchListener {
 
 	public EditorWindow() {
 		super("Piccode - DashBoard");
+
+		DockingUISettings.getInstance().installUI();
+		customizeDock();
+
+		UIManager.put("Tree.collapsedIcon", UIManager.getIcon("Tree.collapsedIcon"));
+		UIManager.put("Tree.expandedIcon", UIManager.getIcon("Tree.expandedIcon")); 
+		
+		try {
+			UIManager.setLookAndFeel(new FlatLightLaf());
+		} catch (Exception ex) {
+			System.err.println("Failed to initialize LaF");
+		}
+
 		new CodeEditor();
 		root = getRootPane();
 		Icons.loadIcons();
 		tabEditors = new HashMap<>();
 		CodeEditor.createTemplateManager();
 		initSearchDialogs();
-
-		DockingUISettings.getInstance().installUI();
-		customizeDock();
-
-		try {
-			UIManager.setLookAndFeel(new FlatLightLaf());
-		} catch (Exception ex) {
-			System.err.println("Failed to initialize LaF");
-		}
 
 		int width = 900;
 		int height = 600;
@@ -190,14 +197,17 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		render_panel.add(short_cuts, BorderLayout.EAST);
 		render_panel.add(new JScrollPane(canvas_panel), BorderLayout.CENTER);
 
-		var cool_bar = new DockablePanel(new BorderLayout(), "Quick Access");
-		cool_bar.add(bar, BorderLayout.CENTER);
+		var file_tree = new FileTreePanel();
+		var vc_panel = new VCPanel();
+		var plugins = new PluginsPanel();
 
 		DockingPreferences.setDottedDesktopStyle();
 		getContentPane().add(desk, BorderLayout.CENTER);
 		getContentPane().add(render_panel, BorderLayout.WEST);
 		getContentPane().add(access_panel, BorderLayout.SOUTH);
-		getContentPane().add(cool_bar, BorderLayout.EAST);
+		getContentPane().add(file_tree, BorderLayout.EAST);
+		getContentPane().add(vc_panel, BorderLayout.EAST);
+		getContentPane().add(plugins, BorderLayout.EAST);
 		getContentPane().add(tool_bar, BorderLayout.PAGE_START);
 		getContentPane().add(bottom_bar, BorderLayout.PAGE_END);
 
@@ -206,8 +216,13 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		getContentPane().add(access_panel, BorderLayout.EAST);
 
 		desk.addDockable(dashboard);
-		desk.addDockable(cool_bar);
-		desk.setAutoHide(cool_bar, true);
+		desk.addDockable(file_tree);
+		desk.addDockable(vc_panel);
+		desk.addDockable(plugins);
+		
+		desk.setAutoHide(file_tree, true);
+		desk.setAutoHide(vc_panel, true);
+		desk.setAutoHide(plugins, true);
 
 		desk.split(dashboard, render_panel, DockingConstants.SPLIT_RIGHT, 0.7);
 		desk.split(render_panel, access_panel, DockingConstants.SPLIT_BOTTOM);
@@ -263,7 +278,11 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		} else {
 			// Add to same container as first editor
 			CodeEditor firstEditor = tabEditors.get(0);
-			win.desk.createTab(firstEditor, editor, 1);
+			try {
+				win.desk.createTab(firstEditor, editor, 1);
+			} catch (NullPointerException npe) {
+				win.desk.createTab(win.dashboard, editor, 2);
+			}
 		}
 	}
 
@@ -281,7 +300,9 @@ public final class EditorWindow extends JFrame implements SearchListener {
 				return editor;
 			}
 		}
-		return tabEditors.values().toArray(CodeEditor[]::new)[0]; // fallback if nothing has focus
+		var values = tabEditors.values();
+		if (values.isEmpty()) return null;
+		return values.toArray(CodeEditor[]::new)[0]; // fallback if nothing has focus
 	}
 
 	private static void addPlusTab(JTabbedPane tabs) {
@@ -407,8 +428,8 @@ public final class EditorWindow extends JFrame implements SearchListener {
 	}
 
 	public static void setSeletedTabTitle(String title) {
-		int index = tabs.getSelectedIndex();
-		tabs.setTitleAt(index, title);
+		var ed = getSelectedEditor();
+		ed.setKey(title);
 	}
 
 	private JPanel makeCoolbar(int height, Action... actions) {
