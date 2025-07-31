@@ -1,5 +1,0 @@
-
-import pkg:io
-
-IO.println("Hello, world")
-
