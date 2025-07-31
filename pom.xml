@@ -11,14 +11,22 @@
 		<exec.mainClass>org.piccode.piccode.Piccode</exec.mainClass>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>antlr4-runtime</artifactId>
-			<version>4.9.3</version>
-		</dependency>
 		
+		<dependency>                                                                                                                                                       
+			<groupId>org.antlr</groupId>                                                                                                                               
+			<artifactId>antlr4-runtime</artifactId>                                                                                                                    
+			<version>4.9.3</version>                                                                                                                                   
+		</dependency> 
+
+
 		<dependency>
 			<groupId>com.formdev</groupId>
 			<artifactId>flatlaf</artifactId>
@@ -55,6 +63,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>com.github.Glimmr-Lang</groupId>
+			<artifactId>PiccodeScript</artifactId>
+			<version>-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
 	<dependencyManagement>
@@ -73,22 +87,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.antlr</groupId>
-				<artifactId>antlr4-maven-plugin</artifactId>
-				<version>4.9.3</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>antlr4</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<outputDirectory>src/main/java/org/piccode/antlr4</outputDirectory>
-					<visitor>true</visitor> <!-- 🔥 This enables visitor generation -->
-				</configuration>
-			</plugin>
 			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
