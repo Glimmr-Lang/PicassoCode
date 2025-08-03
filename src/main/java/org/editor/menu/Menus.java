@@ -118,7 +118,7 @@ public class Menus {
 	}
 
 	private static void addNavigateMenu(JMenuBar menu_bar) {
-		JMenu navMenu = new JMenu("Navigage");
+		JMenu navMenu = new JMenu("Navigate");
 
 		JMenu tabs = new JMenu("Tabs");
 		tabs.setIcon(Icons.getIcon("layout"));
