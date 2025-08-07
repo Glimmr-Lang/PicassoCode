@@ -5,7 +5,7 @@
    <img src="./src/main/resources/applogo/appicon.png" width="40%" />
   </td>
   <td>
-   <h3>Piccaso Code</h3>
+   <h3>Picasso Code</h3>
    <h6>Creativity + Logic + Math</h6>
    <p>A code based image editor created 100% in java</p>
   </td>
@@ -15,8 +15,8 @@
 [![Java CI with Maven](https://github.com/Glimmr-Lang/PicassoCode/actions/workflows/maven.yml/badge.svg)](https://github.com/Glimmr-Lang/PicassoCode/actions/workflows/maven.yml)
 
 ## About
-Piccasso code is an image editor that uses code to create/edit an image. This allows powerful designs to be created with ease and
-automation. The editor uses *glimr* as the scripting language for writing the image editing code. 
+Picasso code is an image editor that uses code to create/edit an image. This allows powerful designs to be created with ease and
+automation. The editor uses *PiccodeScript* as the scripting language for writing the image editing code. 
 
 ## Download
 >> Coming soon
@@ -24,8 +24,8 @@ automation. The editor uses *glimr* as the scripting language for writing the im
 ## Building
 
 ```sh
-$ git clone git@github.com:hexaredecimal/Piccode.git
-$ cd Piccode
+$ git clone https://github.com/Glimmr-Lang/PicassoCode.git
+$ cd PicassoCode
 $ mvn package
 ```
 ### Test your build
@@ -35,7 +35,7 @@ $ java -jar target/Piccode-1.0-SNAPSHOT-jar-with-dependencies.jar
 
 
 ## Inspired by
-Piccassocode is heavily inspired by the [OpenSCAD](https://openscad.org/) program and tries to mimic its functionality
+PicassoCode is heavily inspired by the [OpenSCAD](https://openscad.org/) program and tries to mimic its functionality
 as much as it can while still being an image editor. I was stoked when I tried OpenSCAD for the first time and ended up
 challenging myself to start a new project based araound the idea. A friend suggested something that has to do with graphics
 and my first though was OpenSCAD, but 2D. The idea quickly grew and the small program became an image editor. 
@@ -47,7 +47,7 @@ and my first though was OpenSCAD, but 2D. The idea quickly grew and the small pr
 
 ## License
 ```sh
-drawString("
+Render::drawString("
 +-----------------------------------+
 |  ▄▖▘               ▌              |
 |  ▙▌▌▛▘▀▌▛▘▛▘▛▌▛▘▛▌▛▌█▌            |
