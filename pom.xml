@@ -32,14 +32,14 @@
 		<dependency>                                                                                                                                                       
 			<groupId>org.antlr</groupId>                                                                                                                               
 			<artifactId>antlr4-runtime</artifactId>                                                                                                                    
-			<version>4.9.3</version>                                                                                                                                   
+			<version>4.13.2</version>                                                                                                                                   
 		</dependency> 
 
 
 		<dependency>
 			<groupId>com.formdev</groupId>
 			<artifactId>flatlaf</artifactId>
-			<version>3.6</version>
+			<version>3.6.1</version>
 		</dependency>
 
 		<dependency>
@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>org.bidib.jbidib.com.vldocking</groupId>
 			<artifactId>vldocking</artifactId>
-			<version>3.0.10</version>
+			<version>3.0.11</version>
 		</dependency>
 
 		<dependency>
@@ -97,7 +97,7 @@
 			<dependency>
 				<groupId>org.junit</groupId>
 				<artifactId>junit-bom</artifactId>
-				<version>5.12.2</version>
+				<version>5.13.4</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -112,7 +112,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.4.2</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -125,7 +125,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4.1</version>
+				<version>3.7.1</version>
 				<configuration>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -151,7 +151,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>3.5.0</version>
+				<version>3.6.1</version>
 				<executions>
 					<execution>
 						<id>enforce-versions</id>
@@ -186,7 +186,7 @@
 					<plugin>
 						<groupId>org.graalvm.buildtools</groupId>
 						<artifactId>native-maven-plugin</artifactId>
-						<version>0.10.0</version>
+						<version>0.11.0</version>
 						<extensions>true</extensions>
 						<executions>
 							<execution>
