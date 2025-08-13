@@ -43,6 +43,7 @@ import org.editor.menu.Menus;
 import org.editor.panels.FileTreePanel;
 import org.editor.panels.PluginsPanel;
 import org.editor.panels.VCPanel;
+import org.editor.theme.ThemeManager;
 
 import org.fife.rsta.ui.CollapsibleSectionPanel;
 //import org.fife.rsta.ui.DocumentMap;
@@ -72,8 +73,9 @@ public final class EditorWindow extends JFrame implements SearchListener {
 	private CollapsibleSectionPanel csp;
 	public static FindDialog findDialog;
 	public static ReplaceDialog replaceDialog;
-	private DockingDesktop desk = new DockingDesktop();
+	public static DockingDesktop desk = new DockingDesktop();
 	private static CodeEditor selected = null;
+	public static boolean dark = true;
 
 	public static EditorWindow the() {
 		if (win == null) {
@@ -87,17 +89,13 @@ public final class EditorWindow extends JFrame implements SearchListener {
 	public EditorWindow() {
 		super("Piccode - DashBoard");
 
+		ThemeManager.setFlatLaf(dark);
 		DockingUISettings.getInstance().installUI();
 		customizeDock();
 
 		UIManager.put("Tree.collapsedIcon", UIManager.getIcon("Tree.collapsedIcon"));
 		UIManager.put("Tree.expandedIcon", UIManager.getIcon("Tree.expandedIcon")); 
 		
-		try {
-			UIManager.setLookAndFeel(new FlatLightLaf());
-		} catch (Exception ex) {
-			System.err.println("Failed to initialize LaF");
-		}
 
 		new CodeEditor();
 		root = getRootPane();
@@ -118,7 +116,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 
 			if (current.getDockable() instanceof CodeEditor ed) {
 				if (event.getFutureState().isClosed()) {
-					if (removeIfDirty(ed.tabIndex, ed) == false) {
+					if (removeIfNotDirty(ed.tabIndex, ed) == false) {
 						event.cancel();
 					}
 				}
@@ -229,6 +227,8 @@ public final class EditorWindow extends JFrame implements SearchListener {
 
 		win = this;
 
+		ThemeManager.updateThemes(dark);
+
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(width, height);
 		this.setLocationRelativeTo(null);
@@ -251,6 +251,8 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		editor.requestFocusInWindow();
 		current_file.setText(file != null ? file.toString() : "[NONE]");
 		tabEditors.put(index, editor);
+		ThemeManager.registerEditor(editor);
+		ThemeManager.updateThemes(dark);
 
 		// Add first editor normally
 		if (index == 0) {
@@ -271,6 +273,8 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		editor.requestFocusInWindow();
 		tabEditors.put(index, editor);
 
+		ThemeManager.registerEditor(editor);
+		ThemeManager.updateThemes(dark);
 		// Add first editor normally
 		if (index == 0) {
 			win.getContentPane().add(editor);
@@ -339,7 +343,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 			int index = tabs.indexOfTabComponent(tabHeader);
 			if (index != -1) {
 				var ed = tabEditors.get(index);
-				removeIfDirty(index, ed);
+				removeIfNotDirty(index, ed);
 			}
 		});
 
@@ -364,13 +368,13 @@ public final class EditorWindow extends JFrame implements SearchListener {
 			return;
 		}
 
-		removeIfDirty(index, focused);
+		removeIfNotDirty(index, focused);
 	}
 
 	public static void removeAllTabs() {
 		var editors = new HashMap<>(tabEditors); // Copy to avoid ConcurrentModificationException
 		for (var entry : editors.entrySet()) {
-			removeIfDirty(entry.getKey(), entry.getValue());
+			removeIfNotDirty(entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -378,7 +382,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		return tabEditors.size();
 	}
 
-	private static boolean removeIfDirty(Integer index, CodeEditor ed) {
+	private static boolean removeIfNotDirty(Integer index, CodeEditor ed) {
 		if (ed.textArea.isDirty()) {
 			int result = JOptionPane.showConfirmDialog(win, "File " + ed.filePathTruncated() + " is modified. Save?");
 			if (result == JOptionPane.OK_OPTION) {
@@ -387,6 +391,7 @@ public final class EditorWindow extends JFrame implements SearchListener {
 		}
 		win.desk.remove((Dockable) ed); // Actual removal from docking layout
 		tabEditors.remove(index);
+		ThemeManager.removeEditor(ed);
 		migrateIndexes();
 
 		return true;
